@@ -823,15 +823,19 @@ const SIGNUP_FORM = {
 function logSignup(){
   try{
     if(!gUser || SIGNUP_FORM.formUrl.indexOf("PASTE_")===0) return;
+    /* Log once per browser session (sessionStorage). Submissions are
+       fire-and-forget and can't be verified, so a session-level flag
+       self-heals: if one attempt fails, the next visit retries. Duplicate
+       rows in the sheet are cheap; missing users are not. */
     const k = "tt.logged."+gUser.email;
-    if(localStorage.getItem(k)) return;
+    if(sessionStorage.getItem(k)) return;
+    sessionStorage.setItem(k,"1");
     const body = new URLSearchParams();
     body.append(SIGNUP_FORM.nameEntry, gUser.name);
     body.append(SIGNUP_FORM.emailEntry, gUser.email);
     fetch(SIGNUP_FORM.formUrl, {method:"POST", mode:"no-cors",
       headers:{"Content-Type":"application/x-www-form-urlencoded"},
-      body: body.toString()})
-      .then(()=>localStorage.setItem(k,"1")).catch(()=>{});
+      body: body.toString()}).catch(()=>{});
   }catch(e){}
 }
 const SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file";
@@ -854,9 +858,28 @@ function renderUser(){
 async function gfetch(url, opts={}){
   const r = await fetch(url, {...opts,
     headers:{...(opts.headers||{}), Authorization:"Bearer "+accessToken}});
-  if(!r.ok) throw new Error("HTTP "+r.status);
+  if(!r.ok){
+    let msg = "HTTP "+r.status;
+    try{ const j = await r.json();
+      if(j.error && j.error.message) msg += " — "+j.error.message; }catch(e){}
+    throw new Error(msg);
+  }
   const ct = r.headers.get("content-type")||"";
   return ct.includes("json") ? r.json() : r.text();
+}
+
+function syncFail(e){
+  console.error("Tasks Tracker sync error:", e);
+  setSync("err","Sync error");
+  const m = String((e && e.message) || e);
+  if(/has not been used in project|is disabled/i.test(m))
+    toast("Drive API isn't enabled in the SAME project as your Client ID — check the project dropdown");
+  else if(/insufficient|scope|PERMISSION_DENIED/i.test(m))
+    toast("Drive permission wasn't granted — sign in again and keep the Drive checkbox ticked");
+  else if(/HTTP 401/.test(m))
+    toast("Google session expired — sign out and back in");
+  else
+    toast("Sync error: " + m.slice(0, 90));
 }
 
 function initGIS(){
@@ -893,6 +916,12 @@ async function onToken(resp){
   if(resp.error){ if(gUser) setSync("err","Sync paused"); return; }
   accessToken = resp.access_token;
   tokenExp = Date.now() + ((resp.expires_in||3600)-60)*1000;
+  if(google.accounts.oauth2.hasGrantedAllScopes &&
+     !google.accounts.oauth2.hasGrantedAllScopes(resp, "https://www.googleapis.com/auth/drive.file")){
+    setSync("err","Drive permission needed");
+    alert("Google Drive access wasn't granted, so your data can't sync.\n\nClick 'Sign in with Google' again and keep the checkbox about Google Drive files CHECKED on the consent screen.");
+    return;
+  }
   try{
     if(!gUser){
       const u = await gfetch("https://www.googleapis.com/oauth2/v3/userinfo");
@@ -909,7 +938,7 @@ async function onToken(resp){
     if(pendingPush){ pendingPush=false; await drivePush(); }
     else await driveSync();
     refreshViews();
-  }catch(e){ setSync("err","Sync error"); }
+  }catch(e){ syncFail(e); }
 }
 
 async function driveFind(){
@@ -958,7 +987,7 @@ function queuePush(){
         return;
       }
       if(!driveFileId) await driveSync(); else await drivePush();
-    }catch(e){ setSync("err","Sync error"); }
+    }catch(e){ syncFail(e); }
   }, 1500);
 }
 
