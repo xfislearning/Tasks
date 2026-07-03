@@ -182,6 +182,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
   <div class="hero">
     <h1>Welcome back, <span id="helloName">Xiaofang</span></h1>
     <p>Plan the week, log the work, review the month.</p>
+    <p style="font-size:11.5px;color:var(--muted);margin-top:4px">Signing in with Google syncs your data to your own Drive; your name and email are shared with the app owner so they know who's using the app.</p>
   </div>
   <div class="launch-grid">
     <button class="launch" data-nav="plan">
@@ -310,7 +311,8 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
   <div class="dialog" role="dialog" aria-label="Backup and restore">
     <h2>Backup &amp; restore</h2>
     <p>Signed in, your data auto-syncs to a <b>tasks-tracker-data.json</b> file in your own Google Drive. You can still export a manual backup file anytime, or import one to restore.</p>
-    <button class="btn" id="exportBtn">Export backup (.json)</button>
+    <button class="btn" id="exportXlsx">Export to Excel (.xlsx)</button>
+    <button class="btn secondary" id="exportBtn">Export backup (.json)</button>
     <button class="btn secondary" id="importBtn">Import backup</button>
     <input type="file" id="importFile" accept=".json,application/json" hidden>
     <button class="btn secondary" id="closeSheet">Close</button>
@@ -707,6 +709,80 @@ $("backupBtn").addEventListener("click", ()=>openSheet(true));
 $("closeSheet").addEventListener("click", ()=>openSheet(false));
 $("sheetBack").addEventListener("click", e=>{ if(e.target===$("sheetBack")) openSheet(false); });
 
+async function loadXLSX(){
+  if(window.XLSX) return;
+  await new Promise((res,rej)=>{
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+$("exportXlsx").addEventListener("click", async ()=>{
+  toast("Building Excel file…");
+  try{ await loadXLSX(); }
+  catch(e){ toast("Couldn't load the Excel library — check your connection"); return; }
+
+  const weekOf = w => fromISO(w).toLocaleDateString(undefined,{month:"numeric",day:"numeric",year:"numeric"});
+
+  /* Sheet 1: Plan To-Do */
+  const planRows = db.plan.slice()
+    .sort((a,b)=> a.week===b.week ? a.wi-b.wi : (a.week<b.week?-1:1))
+    .map(pl=>{
+      const it = item(pl.wi)||{name:"?",cat:""};
+      const mon = fromISO(pl.week);
+      const recs = db.records.filter(r=>r.wi===pl.wi && inWeek(r.date, mon));
+      const dates = [...new Set(recs.map(r=>r.date))].sort().map(fmtShort).join(", ");
+      return { "Week of": weekOf(pl.week),
+        "Week theme": (db.weeks[pl.week]||{}).theme||"",
+        "WI#": pl.wi, "Work Item": it.name, "Category": it.cat,
+        "Progress %": pl.progress, "Status": pl.status,
+        "Dates worked": dates,
+        "Hours": recs.reduce((s,r)=>s+r.hours,0),
+        "Notes": pl.notes||"" };
+    });
+
+  /* Sheet 2: Work Records */
+  const recRows = db.records.slice()
+    .sort((a,b)=> a.date<b.date?-1:(a.date>b.date?1:a.wi-b.wi))
+    .map(r=>{
+      const it = item(r.wi)||{name:"?"};
+      return { "Date": r.date, "WI#": r.wi, "Work Item": it.name,
+        "Task": r.task||"", "Category": r.cat, "Hours": r.hours,
+        "Notes": r.notes||"" };
+    });
+
+  /* Sheet 3: Weekly Summary */
+  const weekSet = [...new Set(db.plan.map(p=>p.week)
+    .concat(db.records.map(r=>iso(mondayOf(fromISO(r.date))))))].sort();
+  const sumRows = weekSet.map(w=>{
+    const mon = fromISO(w);
+    const recs = recsForWeek(mon);
+    const plan = planForWeek(w);
+    const row = { "Week of": weekOf(w),
+      "Week theme": (db.weeks[w]||{}).theme||"",
+      "Total hours": recs.reduce((s,r)=>s+r.hours,0),
+      "Entries": recs.length, "Items planned": plan.length,
+      "Items closed": plan.filter(x=>x.status==="Closed").length };
+    db.cats.forEach(c=>{
+      row[c+" (h)"] = recs.filter(r=>r.cat===c).reduce((s,r)=>s+r.hours,0);
+    });
+    return row;
+  });
+
+  const wb = XLSX.utils.book_new();
+  const add = (rows, name, widths)=>{
+    const ws = XLSX.utils.json_to_sheet(rows.length?rows:[{"":"(empty)"}]);
+    ws["!cols"] = widths.map(w=>({wch:w}));
+    XLSX.utils.book_append_sheet(wb, ws, name);
+  };
+  add(planRows, "Plan To-Do", [12,20,5,34,14,10,12,22,7,28]);
+  add(recRows, "Work Records", [11,5,30,50,14,7,32]);
+  add(sumRows, "Weekly Summary", [12,20,11,8,12,12].concat(db.cats.map(()=>14)));
+  XLSX.writeFile(wb, "tasks-tracker-"+iso(new Date())+".xlsx");
+  toast("Excel file downloaded");
+});
+
 $("exportBtn").addEventListener("click", ()=>{
   const blob = new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
   const a = document.createElement("a");
@@ -733,8 +809,31 @@ $("importFile").addEventListener("change", e=>{
 /* One-time setup (see PDF guide, Part 3): create a Google OAuth Client ID
    and paste it below, then commit to GitHub. Until then the app runs in
    Local-only mode and everything else works normally. */
-const CLIENT_ID = "536672492540-muivt95hite07tbvm83buktli0j9js26.apps.googleusercontent.com";
+const CLIENT_ID = "PASTE_YOUR_CLIENT_ID_HERE.apps.googleusercontent.com";
 const DRIVE_FILE = "tasks-tracker-data.json";
+/* User registry (optional): create a Google Form with two Short-answer
+   questions (Name, Email), then paste its formResponse URL and the two
+   entry IDs below — see the instructions PDF. Each sign-in of a new user
+   is submitted to the form and lands in its linked Google Sheet. */
+const SIGNUP_FORM = {
+  formUrl:   "https://docs.google.com/forms/d/e/1FAIpQLSdjnDq-nRsrdtNJLOg0DRE6trbendoFcKY_Ej3ruaxtKvrU7Q/formResponse",
+  nameEntry: "entry.1517950081",
+  emailEntry:"entry.1471283110"
+};
+function logSignup(){
+  try{
+    if(!gUser || SIGNUP_FORM.formUrl.indexOf("PASTE_")===0) return;
+    const k = "tt.logged."+gUser.email;
+    if(localStorage.getItem(k)) return;
+    const body = new URLSearchParams();
+    body.append(SIGNUP_FORM.nameEntry, gUser.name);
+    body.append(SIGNUP_FORM.emailEntry, gUser.email);
+    fetch(SIGNUP_FORM.formUrl, {method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"application/x-www-form-urlencoded"},
+      body: body.toString()})
+      .then(()=>localStorage.setItem(k,"1")).catch(()=>{});
+  }catch(e){}
+}
 const SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file";
 let tokenClient=null, accessToken=null, tokenExp=0, driveFileId=null,
     saveTimer=null, pendingPush=false;
@@ -806,6 +905,7 @@ async function onToken(resp){
       } else { db = load(); }
     }
     renderUser();
+    logSignup();
     if(pendingPush){ pendingPush=false; await drivePush(); }
     else await driveSync();
     refreshViews();
