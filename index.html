@@ -919,7 +919,13 @@ async function onToken(resp){
   if(google.accounts.oauth2.hasGrantedAllScopes &&
      !google.accounts.oauth2.hasGrantedAllScopes(resp, "https://www.googleapis.com/auth/drive.file")){
     setSync("err","Drive permission needed");
-    alert("Google Drive access wasn't granted, so your data can't sync.\n\nClick 'Sign in with Google' again and keep the checkbox about Google Drive files CHECKED on the consent screen.");
+    if(!window.__reconsent){
+      window.__reconsent = true;   /* auto-reopen consent once, then leave it to the user */
+      alert("One more step: Google Drive access wasn't granted, so your data can't sync yet.\n\nOn the next screen, make sure the checkbox about Google Drive files is CHECKED, then click Continue.");
+      tokenClient.requestAccessToken({prompt:"consent"});
+    } else {
+      alert("Drive access is still not granted, so the app is running in Local-only mode.\n\nTo enable sync later: sign out, sign back in, and tick the Google Drive checkbox on the consent screen.");
+    }
     return;
   }
   try{
