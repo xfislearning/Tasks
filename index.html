@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0E2233">
+<title>Tasks Tracker</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0E2233; --navy2:#16324A; --ink:#1B2B3A; --muted:#5B7085;
+  --bg:#F2F5F8; --card:#FFF; --line:#DCE4EC;
+  --teal:#159E96; --teald:#0E7C76; --tsoft:#E2F4F3;
+  --amber:#C7861A; --red:#C2513F; --green:#2E8B57;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
+
+/* ===== Top nav ===== */
+.topbar{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20}
+.topbar-in{max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:26px;padding:0 22px;height:58px}
+.brand{font-weight:700;font-size:16px;letter-spacing:.2px;cursor:pointer;white-space:nowrap}
+.brand small{display:block;color:#59C9C2;font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.8px}
+.navlinks{display:flex;gap:4px;flex:1}
+.navlinks button{background:none;border:none;color:#A9BDCD;font-size:13.5px;font-weight:600;padding:8px 13px;border-radius:7px}
+.navlinks button:hover{color:#fff;background:var(--navy2)}
+.navlinks button.active{color:#fff;background:var(--navy2);box-shadow:inset 0 -2px 0 var(--teal)}
+.icon-btn{background:var(--navy2);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600}
+.icon-btn:hover{border-color:var(--teal)}
+.userchip{display:flex;align-items:center;gap:9px;background:var(--navy2);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:4px 6px 4px 4px}
+.userchip img{width:30px;height:30px;border-radius:7px;background:#274460}
+.userchip .uc-txt{line-height:1.15}
+.userchip b{display:block;font-size:12px;color:#fff;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.userchip span{font-family:var(--mono);font-size:10px;color:#7E97AB}
+.userchip span[data-state=ok]{color:#59C9C2}
+.userchip span[data-state=sync]{color:#E8C170}
+.userchip span[data-state=err]{color:#E58E7E}
+.userchip button{background:none;border:none;color:#A9BDCD;font-size:11px;font-weight:600;padding:4px 6px;border-radius:6px}
+.userchip button:hover{color:#fff;background:rgba(255,255,255,.08)}
+
+main{max-width:1160px;margin:0 auto;padding:26px 22px 60px}
+.view{display:none}.view.active{display:block}
+
+/* ===== Landing ===== */
+.hero{margin:16px 0 26px}
+.hero h1{font-size:28px;color:var(--navy);letter-spacing:-.3px}
+.hero p{color:var(--muted);font-size:14.5px;margin-top:6px}
+.launch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.launch{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;cursor:pointer;text-align:left;transition:border-color .15s, box-shadow .15s}
+.launch:hover{border-color:var(--teal);box-shadow:0 4px 18px rgba(14,34,51,.08)}
+.launch .glyph{width:42px;height:42px;border-radius:10px;background:var(--tsoft);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.launch .glyph svg{width:22px;height:22px;stroke:var(--teald)}
+.launch h2{font-size:17px;color:var(--navy);margin-bottom:5px}
+.launch p{font-size:13px;color:var(--muted);line-height:1.5;min-height:39px}
+.launch .stat{margin-top:14px;font-family:var(--mono);font-size:12.5px;color:var(--teald);font-weight:600}
+
+/* ===== Shared: week/month nav ===== */
+.viewhead{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.viewhead h1{font-size:21px;color:var(--navy)}
+.pnav{display:flex;align-items:center;gap:2px;background:#fff;border:1px solid var(--line);border-radius:9px;padding:3px}
+.pnav button{background:none;border:none;font-size:17px;color:var(--muted);padding:4px 12px;border-radius:6px}
+.pnav button:hover{background:var(--bg);color:var(--ink)}
+.pnav .plabel{font-family:var(--mono);font-size:13px;font-weight:600;padding:0 10px;white-space:nowrap}
+.theme-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:240px}
+.theme-wrap label{font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+.theme-wrap input{flex:1;max-width:420px;border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:#fff}
+.theme-wrap input:focus{outline:2px solid var(--teal);outline-offset:-1px}
+
+/* ===== Tables ===== */
+.tbl-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:#fff;background:var(--navy);text-align:left;padding:10px 12px;white-space:nowrap}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+tbody tr:hover{background:#F8FAFC}
+.wi-tag{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--teald);background:var(--tsoft);border-radius:5px;padding:2px 8px;white-space:nowrap}
+.chip{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:#E8EEF9;color:#3A5A8C;white-space:nowrap}
+td .dates{font-family:var(--mono);font-size:11.5px;color:var(--muted);line-height:1.6}
+td .hrs{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.status-sel{border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:12.5px;font-weight:600;background:#fff}
+.status-sel.s0{color:var(--muted)}.status-sel.s1{color:var(--amber)}
+.status-sel.s2{color:var(--red)}.status-sel.s3{color:var(--green)}
+.prog-in{width:62px;border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-family:var(--mono);font-size:12.5px}
+.notes-in{width:100%;min-width:150px;border:1px solid transparent;border-radius:6px;padding:4px 6px;font-size:12.5px;background:transparent}
+.notes-in:hover{border-color:var(--line)}
+.notes-in:focus{outline:none;border-color:var(--teal);background:#fff}
+.rowbtn{background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;padding:3px 5px}
+.rowbtn:hover{color:var(--red)}
+tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12.5px}
+.empty{color:var(--muted);text-align:center;font-size:13.5px;padding:34px 16px;line-height:1.7}
+
+/* ===== Toolbars & forms ===== */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.btn{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:13.5px;font-weight:700}
+.btn:hover{background:var(--teald)}
+.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:600}
+.btn.secondary:hover{border-color:var(--teal);color:var(--teald)}
+.formcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
+.formcard h2{font-size:14.5px;color:var(--navy);margin-bottom:13px}
+.frow{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:11px}
+.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px}
+.field.grow2{flex:2.4;min-width:240px}
+.field label{font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.field input,.field select,.field textarea{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff}
+.field textarea{min-height:38px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--teal);outline-offset:-1px}
+
+/* ===== Dashboard ===== */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:var(--navy);color:#fff;border-radius:12px;padding:16px 18px}
+.kpi small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#7E97AB;margin-bottom:7px}
+.kpi .v{font-family:var(--mono);font-size:25px;font-weight:600}
+.kpi .v span{font-size:13px;color:#9FB6C9;font-weight:400}
+.dcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+.wkgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.wkgrid .dcard{margin-bottom:0}
+.dcard.wk{cursor:pointer;transition:border-color .15s, box-shadow .15s}
+.dcard.wk:hover{border-color:var(--teal);box-shadow:0 4px 16px rgba(14,34,51,.08)}
+.wk-no{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--teald);background:var(--tsoft);border-radius:5px;padding:2px 8px;margin-right:7px;vertical-align:2px}
+.dcard h3{font-size:15px;color:var(--navy)}
+.dcard .sub{font-size:12.5px;color:var(--muted);margin:2px 0 12px}
+.dcard h3 .wk-hrs{float:right;font-family:var(--mono);font-size:14px;color:var(--teald)}
+.catbar{display:grid;grid-template-columns:120px 1fr 52px;align-items:center;gap:10px;font-size:12.5px;margin-bottom:7px}
+.catbar .bar{height:8px;background:#EDF1F5;border-radius:4px;overflow:hidden}
+.catbar .bar i{display:block;height:100%;background:var(--teal);border-radius:4px}
+.catbar .n{font-family:var(--mono);text-align:right;color:var(--muted);font-weight:600}
+.deliv{margin-top:13px;border-top:1px dashed var(--line);padding-top:11px}
+.deliv small{font-family:var(--mono);font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px}
+.deliv .chips{display:flex;flex-wrap:wrap;gap:7px}
+.deliv .done-chip{font-size:12px;font-weight:600;background:var(--tsoft);color:var(--teald);border-radius:20px;padding:4px 12px}
+.deliv .done-chip b{font-family:var(--mono);font-weight:600;margin-right:4px}
+
+/* ===== Backup dialog ===== */
+.sheet-back{position:fixed;inset:0;background:rgba(14,34,51,.5);z-index:30;display:none}
+.sheet-back.open{display:flex;align-items:center;justify-content:center}
+.dialog{background:#fff;border-radius:14px;padding:24px;width:min(440px,92vw)}
+.dialog h2{font-size:17px;color:var(--navy);margin-bottom:5px}
+.dialog p{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:16px}
+.dialog .btn{width:100%;margin-bottom:9px}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:13px;padding:10px 20px;border-radius:24px;z-index:40;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+@media (max-width:720px){
+  .topbar-in{padding:0 12px;gap:10px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+  .navlinks{order:3;width:100%;overflow-x:auto}
+  main{padding:16px 12px 50px}
+  .launch p{min-height:0}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="topbar-in">
+  <div class="brand" id="brandHome">Tasks Tracker<small>PLAN · LOG · REVIEW</small></div>
+  <div class="navlinks">
+    <button data-nav="home" class="active">Home</button>
+    <button data-nav="plan">Plan To-Do</button>
+    <button data-nav="records">Work Records</button>
+    <button data-nav="dash">Dashboard</button>
+  </div>
+  <button class="icon-btn" id="backupBtn">Backup</button>
+  <button class="icon-btn" id="signinBtn">Sign in with Google</button>
+  <div class="userchip" id="userChip" hidden>
+    <img id="userPic" alt="" referrerpolicy="no-referrer">
+    <div class="uc-txt"><b id="userName"></b><span id="syncState" data-state="off">Local only</span></div>
+    <button id="signoutBtn" title="Sign out">Sign out</button>
+  </div>
+</div></div>
+
+<main>
+
+<!-- ================= LANDING ================= -->
+<section class="view active" id="view-home">
+  <div class="hero">
+    <h1>Welcome back, <span id="helloName">Xiaofang</span></h1>
+    <p>Plan the week, log the work, review the month.</p>
+  </div>
+  <div class="launch-grid">
+    <button class="launch" data-nav="plan">
+      <span class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+      <h2>Plan To-Do</h2>
+      <p>Set this week's work items with WI#, category, progress and status — carry open items forward.</p>
+      <span class="stat" id="statPlan"></span>
+    </button>
+    <button class="launch" data-nav="records">
+      <span class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+      <h2>Work Records</h2>
+      <p>Log daily work against a WI# — detailed task, hours spent, and your notes &amp; takeaways.</p>
+      <span class="stat" id="statRec"></span>
+    </button>
+    <button class="launch" data-nav="dash">
+      <span class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6"/><rect x="12" y="8" width="3" height="10"/><rect x="17" y="5" width="3" height="13"/></svg></span>
+      <h2>Dashboard</h2>
+      <p>Monthly summary — hours by category, totals per week, and what you delivered. Browse past months.</p>
+      <span class="stat" id="statDash"></span>
+    </button>
+  </div>
+</section>
+
+<!-- ================= PLAN TO-DO ================= -->
+<section class="view" id="view-plan">
+  <div class="viewhead">
+    <h1>Plan To-Do</h1>
+    <div class="theme-wrap"><label for="weekTheme">Week theme</label>
+      <input id="weekTheme" placeholder="e.g. Establish business"></div>
+    <div class="pnav">
+      <button id="planPrev" aria-label="Previous week">‹</button>
+      <span class="plabel" id="planLabel"></span>
+      <button id="planNext" aria-label="Next week">›</button>
+    </div>
+  </div>
+
+  <div class="formcard">
+    <h2>Add work item to this week</h2>
+    <div class="frow">
+      <div class="field grow2"><label for="niName">New work item</label>
+        <input id="niName" placeholder="e.g. Customer conversation deck"></div>
+      <div class="field"><label for="niCat">Category</label><select id="niCat"></select></div>
+      <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
+        <button class="btn" id="addNewItem">Add new (auto WI#)</button></div>
+    </div>
+    <div class="frow" style="margin-bottom:0">
+      <div class="field grow2"><label for="existSel">Or add an existing item (keeps its WI#)</label>
+        <select id="existSel"></select></div>
+      <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
+        <button class="btn secondary" id="addExistItem">Add to week</button></div>
+      <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
+        <button class="btn secondary" id="carryBtn">Carry over open items from last week</button></div>
+    </div>
+  </div>
+
+  <div class="tbl-wrap"><table id="planTable">
+    <thead><tr>
+      <th>WI#</th><th style="min-width:200px">Work Item</th><th>Category</th>
+      <th>Progress</th><th>Status</th><th style="min-width:130px">Dates worked</th>
+      <th>Hours</th><th style="min-width:170px">Notes</th><th></th>
+    </tr></thead>
+    <tbody id="planBody"></tbody>
+    <tfoot id="planFoot"></tfoot>
+  </table></div>
+</section>
+
+<!-- ================= WORK RECORDS ================= -->
+<section class="view" id="view-records">
+  <div class="viewhead">
+    <h1>Work Records</h1>
+    <div class="pnav">
+      <button id="recPrev" aria-label="Previous week">‹</button>
+      <span class="plabel" id="recLabel"></span>
+      <button id="recNext" aria-label="Next week">›</button>
+    </div>
+  </div>
+
+  <div class="formcard">
+    <h2>Log work</h2>
+    <div class="frow">
+      <div class="field"><label for="rDate">Date</label><input type="date" id="rDate"></div>
+      <div class="field grow2"><label for="rWI">WI# — Work Item</label><select id="rWI"></select></div>
+      <div class="field"><label for="rCat">Category</label><select id="rCat"></select></div>
+      <div class="field"><label for="rHours">Hours</label>
+        <input type="number" id="rHours" min="0" step="0.25" placeholder="1.5"></div>
+    </div>
+    <div class="frow">
+      <div class="field grow2"><label for="rTask">Task description (detail)</label>
+        <textarea id="rTask" placeholder="What exactly did you do?"></textarea></div>
+      <div class="field grow2"><label for="rNotes">Notes / takeaways</label>
+        <textarea id="rNotes" placeholder="Learnings, follow-ups, ideas…"></textarea></div>
+    </div>
+    <button class="btn" id="addRec">Save entry</button>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr>
+      <th>Date</th><th>WI#</th><th style="min-width:150px">Work Item</th>
+      <th style="min-width:230px">Task</th><th>Category</th><th>Hours</th>
+      <th style="min-width:160px">Notes</th><th></th>
+    </tr></thead>
+    <tbody id="recBody"></tbody>
+    <tfoot id="recFoot"></tfoot>
+  </table></div>
+</section>
+
+<!-- ================= DASHBOARD ================= -->
+<section class="view" id="view-dash">
+  <div class="viewhead">
+    <h1>Dashboard</h1>
+    <div class="pnav">
+      <button id="dashPrev" aria-label="Previous month">‹</button>
+      <span class="plabel" id="dashLabel"></span>
+      <button id="dashNext" aria-label="Next month">›</button>
+    </div>
+  </div>
+  <div class="kpis" id="dashKpis"></div>
+  <div class="dcard" id="dashMonthCats"></div>
+  <div id="dashWeeks"></div>
+</section>
+
+</main>
+
+<!-- Backup dialog -->
+<div class="sheet-back" id="sheetBack">
+  <div class="dialog" role="dialog" aria-label="Backup and restore">
+    <h2>Backup &amp; restore</h2>
+    <p>Signed in, your data auto-syncs to a <b>tasks-tracker-data.json</b> file in your own Google Drive. You can still export a manual backup file anytime, or import one to restore.</p>
+    <button class="btn" id="exportBtn">Export backup (.json)</button>
+    <button class="btn secondary" id="importBtn">Import backup</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+    <button class="btn secondary" id="closeSheet">Close</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ seed (from Sophie's spreadsheet) ============ */
+const SEED = {"version":2,"seq":15,"cats":["Sales","Marketing","Administration","Networking","Product","Learning","Other"],"items":[{"wi":1,"name":"Research targeted customers","cat":"Sales"},{"wi":2,"name":"File LLC and apply EIN","cat":"Administration"},{"wi":3,"name":"Business bank account","cat":"Administration"},{"wi":4,"name":"Setup Business Email","cat":"Administration"},{"wi":5,"name":"Customer conversation deck","cat":"Sales"},{"wi":6,"name":"Build a website","cat":"Administration"},{"wi":7,"name":"Linkedin profiles and post","cat":"Marketing"},{"wi":8,"name":"Assemble team","cat":"Administration"},{"wi":9,"name":"Build AI Consulting capability","cat":"Administration"},{"wi":10,"name":"Bookkeeping","cat":"Administration"},{"wi":12,"name":"Network meetings","cat":"Networking"},{"wi":13,"name":"Learning from others","cat":"Networking"},{"wi":14,"name":"MVP","cat":"Product"}],"plan":[{"week":"2026-06-15","wi":1,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-15","wi":2,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-15","wi":3,"status":"Closed","progress":100,"notes":"Visited Bank of Colorado, Adam's trust, credit union, opened Chase business account online"},{"week":"2026-06-15","wi":4,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-15","wi":5,"status":"Not started","progress":0,"notes":""},{"week":"2026-06-15","wi":6,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-15","wi":7,"status":"Closed","progress":100,"notes":"new added items"},{"week":"2026-06-22","wi":8,"status":"In progress","progress":50,"notes":"CMO advisor (Ryan Hogg)"},{"week":"2026-06-22","wi":9,"status":"In progress","progress":50,"notes":"Codex"},{"week":"2026-06-22","wi":10,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-22","wi":7,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-22","wi":12,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-22","wi":13,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-22","wi":1,"status":"Closed","progress":100,"notes":""},{"week":"2026-06-22","wi":3,"status":"Closed","progress":100,"notes":"Went to chase bank and deposited $3500 to biz account, visited bank of colorado and opened a biz account"},{"week":"2026-06-29","wi":9,"status":"In progress","progress":50,"notes":""},{"week":"2026-06-29","wi":12,"status":"Closed","progress":100,"notes":"Boulder pitck event and two coffee networking meetings"},{"week":"2026-06-29","wi":14,"status":"Closed","progress":100,"notes":""}],"weeks":{"2026-06-15":{"theme":"Establish business"},"2026-06-22":{"theme":"Networking"},"2026-06-29":{"theme":"Learning AI tools"}},"records":[{"id":1,"date":"2026-06-15","wi":1,"task":"Linkedin message to SENs (Andrew Meehan)","cat":"Sales","hours":1.0,"notes":"and messaged to 3 companies previously, no reply"},{"id":2,"date":"2026-06-15","wi":2,"task":"LLC filing in CO","cat":"Administration","hours":4.0,"notes":""},{"id":3,"date":"2026-06-15","wi":2,"task":"Get EIN","cat":"Administration","hours":3.0,"notes":""},{"id":4,"date":"2026-06-16","wi":3,"task":"Visit banks nearby","cat":"Administration","hours":3.0,"notes":"Visited bank of colorao, Adam's trust, credit union, fnbo banks"},{"id":5,"date":"2026-06-16","wi":3,"task":"Applied bank account online from Chase","cat":"Administration","hours":2.0,"notes":""},{"id":6,"date":"2026-06-17","wi":4,"task":"Investigate Email hosting options and buy Email hosting and setup email","cat":"Administration","hours":2.0,"notes":""},{"id":7,"date":"2026-06-17","wi":6,"task":"Initial release","cat":"Administration","hours":4.0,"notes":""},{"id":8,"date":"2026-06-18","wi":6,"task":"5 updates on website\nreplaced with a better logo, fixed logo display and mobile menu display behavior, fixed banner display on mobile, fixed banner icons, added apprenticeship page.","cat":"Administration","hours":8.0,"notes":""},{"id":9,"date":"2026-06-19","wi":6,"task":"2 updates on website; added apprenticeship under community, added google analytics","cat":"Administration","hours":3.0,"notes":""},{"id":10,"date":"2026-06-19","wi":6,"task":"Setup google console","cat":"Administration","hours":1.0,"notes":""},{"id":11,"date":"2026-06-19","wi":7,"task":"Setup company profile (fixed icons issue), update personal profile and the first linkedin post","cat":"Marketing","hours":3.0,"notes":""},{"id":12,"date":"2026-06-20","wi":1,"task":"Identifed 6 companies from a total list of 175 companies in Engineering services, manufacturing, professiona services with $10M-$20M annual revenue, 51-200 headcount, 5%-30% YoY headcount growth in Colorado.","cat":"Sales","hours":3.0,"notes":""},{"id":13,"date":"2026-06-21","wi":1,"task":"Education administration, consulting is not target.\nTarget - hardware company around 200 people, being in the mkt for 20+yr but didn't grow much, had trouble in sw (digital transforamtion) due to culture and process.","cat":"Sales","hours":3.0,"notes":""},{"id":14,"date":"2026-06-21","wi":8,"task":"Meeting with Ryan (targeted customer, solutions, technology)","cat":"Administration","hours":2.0,"notes":""},{"id":15,"date":"2026-06-22","wi":3,"task":"Deposit $3500 in Chase business account and open another account at bank of colorado","cat":"Administration","hours":3.0,"notes":""},{"id":16,"date":"2026-06-22","wi":2,"task":"Investigate how to fix EIN legal name","cat":"Administration","hours":3.0,"notes":""},{"id":17,"date":"2026-06-23","wi":2,"task":"Called IRS and prepared letter to correct legal name","cat":"Administration","hours":3.0,"notes":""},{"id":18,"date":"2026-06-23","wi":4,"task":"Business emailbox can't send out","cat":"Administration","hours":0.5,"notes":""},{"id":19,"date":"2026-06-23","wi":10,"task":"Collect receipts and scan it","cat":"Administration","hours":0.5,"notes":""},{"id":20,"date":"2026-06-24","wi":12,"task":"Pitch Boulder","cat":"Sales","hours":3.5,"notes":"including driving"},{"id":21,"date":"2026-06-24","wi":12,"task":"Email to CPA I talked to","cat":"Administration","hours":0.5,"notes":""},{"id":22,"date":"2026-06-25","wi":12,"task":"Workshop - building the team","cat":"Administration","hours":3.0,"notes":"including driving"},{"id":23,"date":"2026-06-25","wi":1,"task":"Use sales navigator, identify targeted customers, follow people","cat":"Sales","hours":3.0,"notes":""},{"id":24,"date":"2026-06-26","wi":7,"task":"Post strategy, execution plan","cat":"Marketing","hours":2.0,"notes":""},{"id":25,"date":"2026-06-26","wi":7,"task":"Update company page","cat":"Marketing","hours":0.5,"notes":""},{"id":26,"date":"2026-06-26","wi":13,"task":"Conversation with Favio","cat":"Networking","hours":2.0,"notes":"A lot of startup experiences shared"},{"id":27,"date":"2026-06-27","wi":13,"task":"Conversation with Ryan","cat":"Networking","hours":1.5,"notes":"How to choose targeted customers"},{"id":28,"date":"2026-06-28","wi":14,"task":"Build widget ai inside qentro sandbox website with a button \"ask AI\"","cat":"Product","hours":2.5,"notes":"Implement a \"ask AI' button in sandox qentro in github"},{"id":29,"date":"2026-06-29","wi":9,"task":"Learn Codex, Install Claude code and bought plan, how to build a company os in claude video","cat":"Administration","hours":7.0,"notes":""},{"id":30,"date":"2026-06-30","wi":14,"task":"Built a Qentro local AI Assistant using ollama and GPT LLM model","cat":"Product","hours":4.0,"notes":""},{"id":31,"date":"2026-07-01","wi":12,"task":"Pitch Boulder, coffee w/ CPA, coffee w/ Chief product","cat":"Sales","hours":5.5,"notes":""}]};
+
+/* ============ storage ============ */
+const BASEKEY = "tasksTracker.v3";
+const DEFAULT_CATS = ["Sales","Marketing","Administration","Networking","Product","Learning","Other"];
+let gUser = null;
+try{ gUser = JSON.parse(localStorage.getItem("tt.user")||"null"); }catch(e){}
+function activeKey(){ return gUser ? BASEKEY+"."+gUser.email : BASEKEY; }
+let db = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(activeKey()) || localStorage.getItem(BASEKEY)
+             || localStorage.getItem("founderTracker.v2");
+    if(raw) return normalize(JSON.parse(raw));
+  }catch(e){}
+  /* migrate v1 (mobile version) if present */
+  try{
+    const v1raw = localStorage.getItem("founderTracker.v1");
+    if(v1raw){
+      const v1 = JSON.parse(v1raw);
+      const d = migrateV1(v1);
+      localStorage.setItem(activeKey(), JSON.stringify(d));
+      return d;
+    }
+  }catch(e){}
+  if(SEED){ const d = normalize(JSON.parse(JSON.stringify(SEED)));
+    localStorage.setItem(activeKey(), JSON.stringify(d)); return d; }
+  return normalize({});
+}
+function normalize(d){
+  return { version:2, seq:d.seq||1, cats:d.cats||DEFAULT_CATS.slice(),
+    items:d.items||[], plan:d.plan||[], weeks:d.weeks||{}, records:d.records||[],
+    updatedAt:d.updatedAt||0 };
+}
+function migrateV1(v1){
+  const d = normalize({seq:1});
+  const map = {};
+  (v1.items||[]).forEach(it=>{
+    const n = parseInt(String(it.wi).replace(/\D/g,""),10) || d.seq;
+    if(!map[it.wi]){ map[it.wi]=n; d.items.push({wi:n,name:it.title,cat:it.cat});
+      d.seq = Math.max(d.seq, n+1); }
+    d.plan.push({week:it.week, wi:map[it.wi],
+      status: it.status==="Done"?"Closed":it.status, progress:it.progress||0, notes:""});
+  });
+  (v1.records||[]).forEach(r=>{
+    d.records.push({id:r.id, date:r.date, wi:map[r.wi]||0, task:r.desc||"",
+      cat:r.cat, hours:r.hours, notes:r.notes||""});
+  });
+  d.cats = v1.cats||DEFAULT_CATS.slice();
+  return d;
+}
+function save(){
+  db.updatedAt = Date.now();
+  localStorage.setItem(activeKey(), JSON.stringify(db));
+  queuePush();
+}
+
+/* ============ dates ============ */
+function mondayOf(d){ const x=new Date(d); x.setHours(0,0,0,0);
+  x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+function iso(d){ const p=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+function fromISO(s){ const [y,m,dd]=s.split("-").map(Number); return new Date(y,m-1,dd); }
+function fmtShort(s){ return fromISO(s).toLocaleDateString(undefined,{month:"numeric",day:"numeric"}); }
+function fmtMed(s){ return fromISO(s).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}); }
+function weekLabel(mon){ const e=new Date(mon); e.setDate(e.getDate()+6);
+  return mon.toLocaleDateString(undefined,{month:"short",day:"numeric"})+" – "+
+         e.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}); }
+
+let weekStart = mondayOf(new Date());
+let dashMonth = new Date(); dashMonth = new Date(dashMonth.getFullYear(), dashMonth.getMonth(), 1);
+
+function wISO(){ return iso(weekStart); }
+function inWeek(dateStr, mon){ const d=fromISO(dateStr);
+  const e=new Date(mon); e.setDate(e.getDate()+6); e.setHours(23,59,59);
+  return d>=mon && d<=e; }
+
+/* ============ helpers ============ */
+const $ = id => document.getElementById(id);
+const STATUSES = ["Not started","In progress","Blocked","Closed"];
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function h(n){ return (Math.round(n*100)/100)+"h"; }
+function item(wi){ return db.items.find(i=>i.wi===wi); }
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1900); }
+function recsForWeek(mon){ return db.records.filter(r=>inWeek(r.date, mon)); }
+function planForWeek(w){ return db.plan.filter(p=>p.week===w); }
+
+/* ============ navigation ============ */
+let currentView = "home";
+function refreshViews(){ show(currentView); }
+function show(v){
+  currentView = v;
+  ["home","plan","records","dash"].forEach(x=>{
+    $("view-"+x).classList.toggle("active", x===v);
+  });
+  document.querySelectorAll(".navlinks button").forEach(b=>
+    b.classList.toggle("active", b.dataset.nav===v));
+  if(v==="home") renderHome();
+  if(v==="plan") renderPlan();
+  if(v==="records") renderRecords();
+  if(v==="dash") renderDash();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-nav]").forEach(b=>
+  b.addEventListener("click", ()=>show(b.dataset.nav)));
+$("brandHome").addEventListener("click", ()=>show("home"));
+
+/* ============ LANDING ============ */
+function renderHome(){
+  $("helloName").textContent = gUser ? (gUser.given||gUser.name) : "Xiaofang";
+  const w = wISO(), mon = weekStart;
+  const p = planForWeek(w), recs = recsForWeek(mon);
+  const hrs = recs.reduce((s,r)=>s+r.hours,0);
+  const closed = p.filter(x=>x.status==="Closed").length;
+  $("statPlan").textContent = p.length ? `${p.length} items this week · ${closed} closed` : "No items planned this week yet";
+  $("statRec").textContent = recs.length ? `${recs.length} entries · ${h(hrs)} logged this week` : "Nothing logged this week yet";
+  const mRecs = db.records.filter(r=>{ const d=fromISO(r.date);
+    return d.getFullYear()===dashMonth.getFullYear() && d.getMonth()===dashMonth.getMonth(); });
+  $("statDash").textContent = `${dashMonth.toLocaleDateString(undefined,{month:"long"})}: ${h(mRecs.reduce((s,r)=>s+r.hours,0))} so far`;
+}
+
+/* ============ PLAN TO-DO ============ */
+function renderPlan(){
+  $("planLabel").textContent = weekLabel(weekStart);
+  $("weekTheme").value = (db.weeks[wISO()]||{}).theme || "";
+  $("niCat").innerHTML = db.cats.map(c=>`<option>${esc(c)}</option>`).join("");
+
+  const w = wISO();
+  const inPlan = new Set(planForWeek(w).map(p=>p.wi));
+  const avail = db.items.filter(i=>!inPlan.has(i.wi))
+    .sort((a,b)=>a.wi-b.wi);
+  $("existSel").innerHTML = avail.length
+    ? avail.map(i=>`<option value="${i.wi}">WI-${i.wi} — ${esc(i.name)}</option>`).join("")
+    : "<option value=''>All existing items are already in this week</option>";
+
+  const rows = planForWeek(w);
+  const body = $("planBody");
+  if(!rows.length){
+    body.innerHTML = `<tr><td colspan="9"><div class="empty">No work items planned for this week yet.<br>Add a new item, pick an existing WI#, or carry over open items from last week.</div></td></tr>`;
+    $("planFoot").innerHTML = "";
+    return;
+  }
+  let weekHrs = 0;
+  body.innerHTML = rows.map(p=>{
+    const it = item(p.wi)||{name:"?",cat:"Other"};
+    const recs = db.records.filter(r=>r.wi===p.wi && inWeek(r.date, weekStart));
+    const hrs = recs.reduce((s,r)=>s+r.hours,0); weekHrs += hrs;
+    const dates = [...new Set(recs.map(r=>r.date))].sort();
+    const si = STATUSES.indexOf(p.status);
+    return `<tr data-wi="${p.wi}">
+      <td><span class="wi-tag">WI-${p.wi}</span></td>
+      <td>${esc(it.name)}</td>
+      <td><span class="chip">${esc(it.cat)}</span></td>
+      <td><input class="prog-in" type="number" min="0" max="100" step="5" value="${p.progress}" data-act="prog"> %</td>
+      <td><select class="status-sel s${si}" data-act="status">${
+        STATUSES.map(s=>`<option ${s===p.status?"selected":""}>${s}</option>`).join("")}</select></td>
+      <td><span class="dates">${dates.length?dates.map(fmtShort).join(", "):"—"}</span></td>
+      <td><span class="hrs">${hrs?h(hrs):"—"}</span></td>
+      <td><input class="notes-in" value="${esc(p.notes)}" placeholder="add note…" data-act="notes"></td>
+      <td><button class="rowbtn" data-act="rm" title="Remove from this week">✕</button></td>
+    </tr>`;
+  }).join("");
+  const closed = rows.filter(r=>r.status==="Closed").length;
+  $("planFoot").innerHTML = `<tr><td colspan="5">Week total · ${rows.length} items · ${closed} closed</td>
+    <td></td><td>${h(weekHrs)}</td><td colspan="2"></td></tr>`;
+}
+
+$("weekTheme").addEventListener("change", ()=>{
+  const w = wISO();
+  db.weeks[w] = db.weeks[w]||{};
+  db.weeks[w].theme = $("weekTheme").value.trim();
+  save(); toast("Week theme saved");
+});
+
+$("addNewItem").addEventListener("click", ()=>{
+  const name = $("niName").value.trim();
+  if(!name){ toast("Enter a work item name"); return; }
+  const wi = db.seq++;
+  db.items.push({wi, name, cat: $("niCat").value});
+  db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
+  $("niName").value = "";
+  save(); renderPlan(); toast("WI-"+wi+" added");
+});
+
+$("addExistItem").addEventListener("click", ()=>{
+  const wi = parseInt($("existSel").value,10);
+  if(!wi){ toast("No item selected"); return; }
+  db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
+  save(); renderPlan(); toast("WI-"+wi+" added to this week");
+});
+
+$("carryBtn").addEventListener("click", ()=>{
+  const prev = new Date(weekStart); prev.setDate(prev.getDate()-7);
+  const from = planForWeek(iso(prev)).filter(p=>p.status!=="Closed");
+  const already = new Set(planForWeek(wISO()).map(p=>p.wi));
+  let n = 0;
+  from.forEach(p=>{ if(!already.has(p.wi)){
+    db.plan.push({week:wISO(), wi:p.wi, status:p.status, progress:p.progress, notes:p.notes});
+    n++; }});
+  if(n){ save(); renderPlan(); }
+  toast(n ? n+" open item(s) carried over" : "No open items last week to carry over");
+});
+
+$("planBody").addEventListener("change", e=>{
+  const tr = e.target.closest("tr"); if(!tr) return;
+  const p = db.plan.find(x=>x.week===wISO() && x.wi===+tr.dataset.wi); if(!p) return;
+  const act = e.target.dataset.act;
+  if(act==="status"){ p.status = e.target.value;
+    if(p.status==="Closed") p.progress = 100;
+    save(); renderPlan(); }
+  if(act==="prog"){ p.progress = Math.max(0, Math.min(100, +e.target.value||0));
+    if(p.progress===100 && p.status!=="Closed") p.status="Closed";
+    save(); renderPlan(); }
+  if(act==="notes"){ p.notes = e.target.value; save(); }
+});
+$("planBody").addEventListener("click", e=>{
+  if(e.target.dataset.act!=="rm") return;
+  const tr = e.target.closest("tr");
+  const wi = +tr.dataset.wi;
+  if(!confirm("Remove WI-"+wi+" from this week's plan? (The item and its records are kept.)")) return;
+  db.plan = db.plan.filter(x=>!(x.week===wISO() && x.wi===wi));
+  save(); renderPlan();
+});
+
+$("planPrev").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()-7); renderPlan(); });
+$("planNext").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()+7); renderPlan(); });
+
+/* ============ WORK RECORDS ============ */
+function renderRecords(){
+  $("recLabel").textContent = weekLabel(weekStart);
+  if(!$("rDate").value) $("rDate").value = iso(new Date());
+
+  /* WI dropdown: this week's plan first, then all others */
+  const w = wISO();
+  const inPlan = planForWeek(w).map(p=>p.wi);
+  const others = db.items.filter(i=>!inPlan.includes(i.wi)).sort((a,b)=>a.wi-b.wi);
+  const opt = i=>`<option value="${i.wi}">WI-${i.wi} — ${esc(i.name)}</option>`;
+  const sel = $("rWI"); const prev = sel.value;
+  sel.innerHTML =
+    (inPlan.length?`<optgroup label="This week's plan">${inPlan.map(wi=>opt(item(wi)||{wi,name:"?"})).join("")}</optgroup>`:"") +
+    (others.length?`<optgroup label="All items">${others.map(opt).join("")}</optgroup>`:"");
+  if(!sel.options.length) sel.innerHTML = "<option value=''>No items yet — add one in Plan To-Do</option>";
+  if([...sel.options].some(o=>o.value===prev)) sel.value = prev;
+  $("rCat").innerHTML = db.cats.map(c=>`<option>${esc(c)}</option>`).join("");
+  syncRecCat();
+
+  const recs = recsForWeek(weekStart)
+    .sort((a,b)=> a.date===b.date ? b.id-a.id : (a.date<b.date?1:-1));
+  const body = $("recBody");
+  if(!recs.length){
+    body.innerHTML = `<tr><td colspan="8"><div class="empty">Nothing logged for this week.<br>Entries you save appear here, newest first.</div></td></tr>`;
+    $("recFoot").innerHTML = ""; return;
+  }
+  body.innerHTML = recs.map(r=>{
+    const it = item(r.wi)||{name:"?"};
+    return `<tr data-id="${r.id}">
+      <td style="white-space:nowrap">${fmtMed(r.date)}</td>
+      <td><span class="wi-tag">WI-${r.wi}</span></td>
+      <td>${esc(it.name)}</td>
+      <td>${esc(r.task)}</td>
+      <td><span class="chip">${esc(r.cat)}</span></td>
+      <td><span class="hrs">${h(r.hours)}</span></td>
+      <td style="color:var(--muted);font-size:12.5px">${esc(r.notes)}</td>
+      <td><button class="rowbtn" data-act="del" title="Delete entry">✕</button></td>
+    </tr>`;
+  }).join("");
+  $("recFoot").innerHTML = `<tr><td colspan="5">Week total · ${recs.length} entries</td>
+    <td>${h(recs.reduce((s,r)=>s+r.hours,0))}</td><td colspan="2"></td></tr>`;
+}
+function syncRecCat(){
+  const it = item(parseInt($("rWI").value,10));
+  if(it && db.cats.includes(it.cat)) $("rCat").value = it.cat;
+}
+$("rWI").addEventListener("change", syncRecCat);
+
+$("addRec").addEventListener("click", ()=>{
+  const wi = parseInt($("rWI").value,10);
+  if(!wi){ toast("Add a work item in Plan To-Do first"); return; }
+  const hours = parseFloat($("rHours").value);
+  if(!(hours>0)){ toast("Enter hours spent"); return; }
+  const date = $("rDate").value || iso(new Date());
+  db.records.push({ id: Date.now(), date, wi, task: $("rTask").value.trim(),
+    cat: $("rCat").value, hours, notes: $("rNotes").value.trim() });
+  /* nudge plan status */
+  const p = db.plan.find(x=>x.week===iso(mondayOf(fromISO(date))) && x.wi===wi);
+  if(p && p.status==="Not started") p.status = "In progress";
+  $("rHours").value=""; $("rTask").value=""; $("rNotes").value="";
+  save();
+  if(!inWeek(date, weekStart)) weekStart = mondayOf(fromISO(date));
+  renderRecords(); toast("Logged "+h(hours)+" on WI-"+wi);
+});
+
+$("recBody").addEventListener("click", e=>{
+  if(e.target.dataset.act!=="del") return;
+  const id = +e.target.closest("tr").dataset.id;
+  if(!confirm("Delete this entry?")) return;
+  db.records = db.records.filter(r=>r.id!==id);
+  save(); renderRecords();
+});
+
+$("recPrev").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()-7); renderRecords(); });
+$("recNext").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()+7); renderRecords(); });
+
+/* ============ DASHBOARD ============ */
+function catBars(byCat, max){
+  return Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`
+    <div class="catbar"><span>${esc(c)}</span>
+      <span class="bar"><i style="width:${Math.max(2,Math.round(v/max*100))}%"></i></span>
+      <span class="n">${h(v)}</span></div>`).join("");
+}
+function renderDash(){
+  const y = dashMonth.getFullYear(), m = dashMonth.getMonth();
+  $("dashLabel").textContent = dashMonth.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+
+  /* every week (Mon–Sun) whose Monday falls inside this month */
+  const weekISOs = [];
+  const d = new Date(y, m, 1);
+  while(d.getDay()!==1) d.setDate(d.getDate()+1);
+  while(d.getMonth()===m){ weekISOs.push(iso(d)); d.setDate(d.getDate()+7); }
+
+  const wk = weekISOs.map(w=>{
+    const mon = fromISO(w);
+    const recs = recsForWeek(mon);
+    const plan = planForWeek(w);
+    const byCat = {}; recs.forEach(r=>byCat[r.cat]=(byCat[r.cat]||0)+r.hours);
+    return { w, mon, recs, plan, byCat,
+      hours: recs.reduce((s,r)=>s+r.hours,0),
+      closed: plan.filter(x=>x.status==="Closed") };
+  });
+
+  /* month aggregate = exact sum of the weeks below */
+  const total = wk.reduce((s,x)=>s+x.hours,0);
+  const entries = wk.reduce((s,x)=>s+x.recs.length,0);
+  const days = new Set(wk.flatMap(x=>x.recs.map(r=>r.date))).size;
+  const delivered = wk.reduce((s,x)=>s+x.closed.length,0);
+
+  $("dashKpis").innerHTML = `
+    <div class="kpi"><small>Month total</small><div class="v">${h(total)}</div></div>
+    <div class="kpi"><small>Entries logged</small><div class="v">${entries} <span>on ${days} days</span></div></div>
+    <div class="kpi"><small>Items delivered</small><div class="v">${delivered} <span>closed</span></div></div>
+    <div class="kpi"><small>Weeks</small><div class="v">${wk.length} <span>in month</span></div></div>`;
+
+  const byCat = {};
+  wk.forEach(x=>Object.entries(x.byCat).forEach(([c,v])=>byCat[c]=(byCat[c]||0)+v));
+  const max = Math.max(1,...Object.values(byCat));
+  $("dashMonthCats").innerHTML = Object.keys(byCat).length
+    ? `<h3>Month aggregate — hours by category<span class="wk-hrs">${h(total)}</span></h3>
+       <div class="sub">Sum of the ${wk.length} weeks below</div>${catBars(byCat,max)}`
+    : `<div class="empty">No hours logged in ${esc($("dashLabel").textContent)} yet.<br>Weeks of the month are shown below — log work and they fill in.</div>`;
+
+  $("dashWeeks").innerHTML = '<div class="wkgrid">' + wk.map((x,i)=>{
+    const theme = (db.weeks[x.w]||{}).theme;
+    const wMax = Math.max(1,...Object.values(x.byCat));
+    const end = new Date(x.mon); end.setDate(end.getDate()+6);
+    const range = x.mon.toLocaleDateString(undefined,{month:"short",day:"numeric"})+" – "+
+                  end.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+    return `<div class="dcard wk" data-week="${x.w}" title="Open this week in Plan To-Do">
+      <h3><span class="wk-no">Week ${i+1}</span>${range}<span class="wk-hrs">${h(x.hours)}</span></h3>
+      <div class="sub">${theme?esc(theme)+" · ":""}${x.recs.length} entries · ${x.closed.length}/${x.plan.length} items closed</div>
+      ${Object.keys(x.byCat).length ? catBars(x.byCat,wMax)
+        : '<div class="sub" style="margin-top:6px">No activity this week.</div>'}
+      ${x.closed.length ? `<div class="deliv"><small>Delivered / closed</small><div class="chips">${
+        x.closed.map(p=>{const it=item(p.wi)||{name:"?"};
+          return `<span class="done-chip"><b>WI-${p.wi}</b>${esc(it.name)}</span>`;}).join("")
+      }</div></div>` : ""}
+    </div>`;
+  }).join("") + '</div>';
+}
+$("dashWeeks").addEventListener("click", e=>{
+  const card = e.target.closest(".wk"); if(!card) return;
+  weekStart = fromISO(card.dataset.week);
+  show("plan");
+});
+$("dashPrev").addEventListener("click", ()=>{ dashMonth = new Date(dashMonth.getFullYear(), dashMonth.getMonth()-1, 1); renderDash(); });
+$("dashNext").addEventListener("click", ()=>{ dashMonth = new Date(dashMonth.getFullYear(), dashMonth.getMonth()+1, 1); renderDash(); });
+
+/* ============ BACKUP ============ */
+function openSheet(o){ $("sheetBack").classList.toggle("open",o); }
+$("backupBtn").addEventListener("click", ()=>openSheet(true));
+$("closeSheet").addEventListener("click", ()=>openSheet(false));
+$("sheetBack").addEventListener("click", e=>{ if(e.target===$("sheetBack")) openSheet(false); });
+
+$("exportBtn").addEventListener("click", ()=>{
+  const blob = new Blob([JSON.stringify(db,null,2)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "tasks-tracker-backup-"+iso(new Date())+".json";
+  a.click(); URL.revokeObjectURL(a.href);
+  toast("Backup downloaded — save it to Google Drive");
+});
+$("importBtn").addEventListener("click", ()=>$("importFile").click());
+$("importFile").addEventListener("change", e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{ try{
+      const d = JSON.parse(rd.result);
+      if(!Array.isArray(d.records)) throw 0;
+      db = d.version===2 ? normalize(d) : migrateV1(d);
+      save(); openSheet(false); show("home"); toast("Backup restored");
+    }catch(err){ toast("That file doesn't look like a valid backup"); }
+    e.target.value=""; };
+  rd.readAsText(f);
+});
+
+/* ============ GOOGLE ACCOUNT + DRIVE SYNC ============ */
+/* One-time setup (see PDF guide, Part 3): create a Google OAuth Client ID
+   and paste it below, then commit to GitHub. Until then the app runs in
+   Local-only mode and everything else works normally. */
+const CLIENT_ID = "536672492540-muivt95hite07tbvm83buktli0j9js26.apps.googleusercontent.com";
+const DRIVE_FILE = "tasks-tracker-data.json";
+const SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file";
+let tokenClient=null, accessToken=null, tokenExp=0, driveFileId=null,
+    saveTimer=null, pendingPush=false;
+
+function configured(){ return CLIENT_ID.indexOf("PASTE_")!==0; }
+function setSync(state,msg){ const el=$("syncState");
+  el.dataset.state=state; el.textContent=msg; }
+
+function renderUser(){
+  const on = !!gUser;
+  $("signinBtn").hidden = on;
+  $("userChip").hidden = !on;
+  if(on){ $("userName").textContent = gUser.name;
+    $("userPic").src = gUser.pic||"icon-192.png"; }
+  if($("view-home").classList.contains("active")) renderHome();
+}
+
+async function gfetch(url, opts={}){
+  const r = await fetch(url, {...opts,
+    headers:{...(opts.headers||{}), Authorization:"Bearer "+accessToken}});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  const ct = r.headers.get("content-type")||"";
+  return ct.includes("json") ? r.json() : r.text();
+}
+
+function initGIS(){
+  if(typeof google==="undefined" || !google.accounts || !configured()) return;
+  if(tokenClient) return;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID, scope: SCOPES, callback: onToken,
+    error_callback: ()=>{ if(gUser) setSync("err","Sync paused"); }
+  });
+  if(gUser){ setSync("sync","Connecting…");
+    try{ tokenClient.requestAccessToken({prompt:""}); }catch(e){ setSync("err","Sync paused"); } }
+}
+window.__gisLoaded = initGIS;
+
+$("signinBtn").addEventListener("click", ()=>{
+  if(!configured()){
+    alert("Google sign-in isn't configured yet.\n\nFollow Part 3 of the setup guide: create a free Google OAuth Client ID and paste it into index.html (the CLIENT_ID line), then upload to GitHub.\n\nUntil then the app works in Local-only mode.");
+    return;
+  }
+  initGIS();
+  if(tokenClient) tokenClient.requestAccessToken({prompt: gUser ? "" : "consent"});
+});
+
+$("signoutBtn").addEventListener("click", ()=>{
+  if(!confirm("Sign out? Your data stays safely in your Google Drive (and on this device).")) return;
+  try{ if(accessToken && typeof google!=="undefined")
+    google.accounts.oauth2.revoke(accessToken, ()=>{}); }catch(e){}
+  gUser=null; accessToken=null; driveFileId=null;
+  localStorage.removeItem("tt.user");
+  db = load(); renderUser(); refreshViews(); toast("Signed out");
+});
+
+async function onToken(resp){
+  if(resp.error){ if(gUser) setSync("err","Sync paused"); return; }
+  accessToken = resp.access_token;
+  tokenExp = Date.now() + ((resp.expires_in||3600)-60)*1000;
+  try{
+    if(!gUser){
+      const u = await gfetch("https://www.googleapis.com/oauth2/v3/userinfo");
+      gUser = { name:u.name||u.email, given:u.given_name||u.name||u.email,
+                email:u.email, pic:u.picture||"" };
+      localStorage.setItem("tt.user", JSON.stringify(gUser));
+      /* first sign-in on this device: adopt existing local data */
+      if(!localStorage.getItem(activeKey())){
+        localStorage.setItem(activeKey(), JSON.stringify(db));
+      } else { db = load(); }
+    }
+    renderUser();
+    if(pendingPush){ pendingPush=false; await drivePush(); }
+    else await driveSync();
+    refreshViews();
+  }catch(e){ setSync("err","Sync error"); }
+}
+
+async function driveFind(){
+  const q = encodeURIComponent("name='"+DRIVE_FILE+"' and trashed=false");
+  const d = await gfetch("https://www.googleapis.com/drive/v3/files?q="+q+
+    "&fields=files(id,modifiedTime)&orderBy=modifiedTime desc");
+  return (d.files && d.files[0]) ? d.files[0].id : null;
+}
+async function driveSync(){
+  setSync("sync","Syncing…");
+  driveFileId = await driveFind();
+  if(!driveFileId){
+    const meta = await gfetch("https://www.googleapis.com/drive/v3/files",
+      {method:"POST", headers:{"Content-Type":"application/json"},
+       body: JSON.stringify({name:DRIVE_FILE, mimeType:"application/json"})});
+    driveFileId = meta.id;
+    await drivePush(); return;
+  }
+  const raw = await gfetch("https://www.googleapis.com/drive/v3/files/"+driveFileId+"?alt=media");
+  let rem = null;
+  try{ rem = (typeof raw==="string") ? JSON.parse(raw) : raw; }catch(e){}
+  if(rem && (rem.updatedAt||0) > (db.updatedAt||0)){
+    db = normalize(rem);
+    localStorage.setItem(activeKey(), JSON.stringify(db));
+    toast("Loaded your latest data from Google Drive");
+    setSync("ok","Synced");
+  } else if((db.updatedAt||0) > ((rem&&rem.updatedAt)||0)){
+    await drivePush();
+  } else setSync("ok","Synced");
+}
+async function drivePush(){
+  if(!gUser || !driveFileId) return;
+  setSync("sync","Syncing…");
+  await gfetch("https://www.googleapis.com/upload/drive/v3/files/"+driveFileId+"?uploadType=media",
+    {method:"PATCH", headers:{"Content-Type":"application/json"}, body: JSON.stringify(db)});
+  setSync("ok","Synced");
+}
+function queuePush(){
+  if(!gUser || !configured()) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    try{
+      if(!accessToken || Date.now()>=tokenExp){
+        pendingPush = true;
+        if(tokenClient) tokenClient.requestAccessToken({prompt:""});
+        return;
+      }
+      if(!driveFileId) await driveSync(); else await drivePush();
+    }catch(e){ setSync("err","Sync error"); }
+  }, 1500);
+}
+
+/* ============ init ============ */
+renderUser();
+renderHome();
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+})();
+</script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="window.__gisLoaded&&window.__gisLoaded()"></script>
+</body>
+</html>
