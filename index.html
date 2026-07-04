@@ -63,6 +63,32 @@ main{max-width:1160px;margin:0 auto;padding:26px 22px 60px}
 .launch p{font-size:13px;color:var(--muted);line-height:1.5;min-height:39px}
 .launch .stat{margin-top:14px;font-family:var(--mono);font-size:12.5px;color:var(--teald);font-weight:600}
 
+/* ===== Getting-started strip (signed out only) ===== */
+.starter{display:none;background:#EAF6F5;border-bottom:1px solid #C4E5E2;padding:9px 16px;align-items:center;gap:8px;flex-wrap:wrap}
+body.demo .starter{display:flex}
+.starter>b{font-size:11.5px;color:#04342C;white-space:nowrap}
+.schip{font-size:11.5px;color:#085041;background:#fff;border:1px solid #C4E5E2;border-radius:14px;padding:3px 11px;white-space:nowrap}
+.sarr{color:#5B9E97;font-size:12px}
+.schip.warn{position:relative;color:#7A4E06;background:#FBF3E2;border:1px solid #F0B429;box-shadow:0 0 0 3px rgba(240,180,41,.18);cursor:default}
+.schip.warn svg{width:13px;height:13px;vertical-align:-2px;color:#B07C0A}
+.spop{display:none;position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);width:min(300px,86vw);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:0 8px 24px rgba(14,34,51,.18);z-index:25;white-space:normal;cursor:auto}
+.schip.warn:hover .spop,.schip.warn.open .spop{display:block}
+.spop:before{content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%) rotate(45deg);width:10px;height:10px;background:#fff;border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.spop small{display:block;font-size:10.5px;color:var(--muted);margin-bottom:7px}
+.spop .consent{display:flex;align-items:flex-start;gap:9px;background:#FFFBEF;border:1px solid #F0B429;border-radius:8px;padding:8px 10px}
+.spop .cb{width:14px;height:14px;border:2px solid #B07C0A;border-radius:3px;background:#fff;display:inline-flex;align-items:center;justify-content:center;margin-top:1px;flex:none}
+.spop .cb svg{width:10px;height:10px;color:#B07C0A}
+.spop .consent span{font-size:10.5px;color:var(--ink);line-height:1.5}
+.spop .warnline{display:block;font-size:10px;color:#8A5E12;margin-top:7px}
+
+/* ===== Demo mode ===== */
+.lockbar{display:none;border:1px dashed #B4C4D2;border-radius:10px;padding:11px 14px;align-items:center;gap:10px;background:#fff}
+body.demo .lockbar{display:flex}
+.lockbar svg{width:16px;height:16px;color:var(--muted);flex:none}
+.lockbar span{font-size:12.5px;color:var(--muted)}
+.lockbar .btn{width:auto;margin-left:auto;padding:6px 14px;font-size:12.5px}
+body.demo .formcard .frow,body.demo .formcard > .btn{display:none}
+
 /* ===== Trust banner ===== */
 .trust{background:var(--tsoft);border:1px solid #9FE1CB;border-radius:10px;padding:12px 16px;display:flex;gap:12px;align-items:flex-start;margin-bottom:18px}
 .trust svg{width:19px;height:19px;color:var(--teald);flex:none;margin-top:1px}
@@ -190,6 +216,25 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
   </div>
 </div></div>
 
+<div class="starter">
+  <b>Getting started:</b>
+  <span class="schip">Click "Sign in with Google"</span>
+  <span class="sarr">→</span>
+  <span class="schip">Choose your Google account</span>
+  <span class="sarr">→</span>
+  <span class="schip warn" id="starterWarn"><b>CHECK the box</b> "Google Drive files"
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12l2 2 4-5"/></svg>
+    <span class="spop">
+      <small>On Google's screen it looks like this:</small>
+      <span class="consent"><span class="cb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4 10-11"/></svg></span>
+      <span>See, edit, create, and delete <b>only the specific Google Drive files you use with this app</b></span></span>
+      <span class="warnline">⚠ It may be unchecked by default — tick it, or your data can't sync</span>
+    </span>
+  </span>
+  <span class="sarr">→</span>
+  <span class="schip">Click Continue</span>
+</div>
+
 <main>
 
 <!-- ================= LANDING ================= -->
@@ -242,6 +287,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 
   <div class="formcard">
     <h2>Add work item to this week</h2>
+    <div class="lockbar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>Sign in with Google to add and edit your own work items</span><button class="btn" data-locksignin>Sign in</button></div>
     <div class="frow">
       <div class="field grow2"><label for="niName">New work item</label>
         <input id="niName" placeholder="e.g. Customer conversation deck"></div>
@@ -285,6 +331,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 
   <div class="formcard">
     <h2>Log work</h2>
+    <div class="lockbar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>Sign in with Google to log your own work</span><button class="btn" data-locksignin>Sign in</button></div>
     <div class="frow">
       <div class="field"><label for="rDate">Date</label><input type="date" id="rDate"></div>
       <div class="field grow2"><label for="rWI">WI# — Work Item</label><select id="rWI"></select></div>
@@ -370,7 +417,34 @@ try{ gUser = JSON.parse(localStorage.getItem("tt.user")||"null"); }catch(e){}
 function activeKey(){ return gUser ? BASEKEY+"."+gUser.email : BASEKEY; }
 let db = load();
 
+function demoData(){
+  const t = new Date(); const m = mondayOf(t);
+  const elapsed = Math.floor((t - m) / 86400000);
+  const day = k => { const x = new Date(m); x.setDate(x.getDate() + Math.min(k, elapsed)); return iso(x); };
+  const prev = new Date(m); prev.setDate(prev.getDate() - 7);
+  const pd = k => { const x = new Date(prev); x.setDate(x.getDate() + k); return iso(x); };
+  return normalize({ seq: 4,
+    items: [
+      { wi: 1, name: "Prepare client proposal", cat: "Sales" },
+      { wi: 2, name: "Refresh company website", cat: "Marketing" },
+      { wi: 3, name: "Monthly bookkeeping", cat: "Administration" }],
+    plan: [
+      { week: iso(m), wi: 1, status: "In progress", progress: 60, notes: "Sample item" },
+      { week: iso(m), wi: 2, status: "Closed", progress: 100, notes: "" },
+      { week: iso(m), wi: 3, status: "Not started", progress: 0, notes: "" },
+      { week: iso(prev), wi: 2, status: "Closed", progress: 100, notes: "" }],
+    weeks: (function(){ const w = {}; w[iso(m)] = { theme: "Sample week" }; return w; })(),
+    records: [
+      { id: 1, date: day(0), wi: 1, task: "Drafted proposal outline", cat: "Sales", hours: 2.5, notes: "Sample entry" },
+      { id: 2, date: day(1), wi: 1, task: "Client research and pricing", cat: "Sales", hours: 2, notes: "" },
+      { id: 3, date: day(1), wi: 2, task: "Updated homepage copy", cat: "Marketing", hours: 3, notes: "" },
+      { id: 4, date: day(2), wi: 3, task: "Reconciled monthly expenses", cat: "Administration", hours: 1, notes: "" },
+      { id: 5, date: pd(1), wi: 2, task: "New site layout draft", cat: "Marketing", hours: 4, notes: "" },
+      { id: 6, date: pd(3), wi: 2, task: "Published new website", cat: "Marketing", hours: 3.5, notes: "" }]
+  });
+}
 function load(){
+  if(!gUser) return demoData();
   try{
     const raw = localStorage.getItem(activeKey()) || localStorage.getItem(BASEKEY)
              || localStorage.getItem("founderTracker.v2");
@@ -413,9 +487,15 @@ function migrateV1(v1){
   return d;
 }
 function save(){
+  if(!gUser) return;   /* demo preview is never persisted */
   db.updatedAt = Date.now();
   localStorage.setItem(activeKey(), JSON.stringify(db));
   queuePush();
+}
+function requireAuth(){
+  if(gUser) return true;
+  toast("Sign in with Google to start tracking your own work");
+  return false;
 }
 
 /* ============ dates ============ */
@@ -431,7 +511,7 @@ function weekLabel(mon){ const e=new Date(mon); e.setDate(e.getDate()+6);
          e.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}); }
 
 let weekStart = mondayOf(new Date());
-let dashMonth = new Date(); dashMonth = new Date(dashMonth.getFullYear(), dashMonth.getMonth(), 1);
+let dashMonth = mondayOf(new Date()); dashMonth = new Date(dashMonth.getFullYear(), dashMonth.getMonth(), 1);
 
 function wISO(){ return iso(weekStart); }
 function inWeek(dateStr, mon){ const d=fromISO(dateStr);
@@ -487,6 +567,7 @@ function renderHome(){
 function renderPlan(){
   $("planLabel").textContent = weekLabel(weekStart);
   $("weekTheme").value = (db.weeks[wISO()]||{}).theme || "";
+  $("weekTheme").readOnly = !gUser;
   $("niCat").innerHTML = db.cats.map(c=>`<option>${esc(c)}</option>`).join("");
 
   const w = wISO();
@@ -530,6 +611,7 @@ function renderPlan(){
 }
 
 $("weekTheme").addEventListener("change", ()=>{
+  if(!requireAuth()){ renderPlan(); return; }
   const w = wISO();
   db.weeks[w] = db.weeks[w]||{};
   db.weeks[w].theme = $("weekTheme").value.trim();
@@ -537,6 +619,7 @@ $("weekTheme").addEventListener("change", ()=>{
 });
 
 $("addNewItem").addEventListener("click", ()=>{
+  if(!requireAuth()) return;
   const name = $("niName").value.trim();
   if(!name){ toast("Enter a work item name"); return; }
   const wi = db.seq++;
@@ -547,6 +630,7 @@ $("addNewItem").addEventListener("click", ()=>{
 });
 
 $("addExistItem").addEventListener("click", ()=>{
+  if(!requireAuth()) return;
   const wi = parseInt($("existSel").value,10);
   if(!wi){ toast("No item selected"); return; }
   db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
@@ -554,6 +638,7 @@ $("addExistItem").addEventListener("click", ()=>{
 });
 
 $("carryBtn").addEventListener("click", ()=>{
+  if(!requireAuth()) return;
   const prev = new Date(weekStart); prev.setDate(prev.getDate()-7);
   const from = planForWeek(iso(prev)).filter(p=>p.status!=="Closed");
   const already = new Set(planForWeek(wISO()).map(p=>p.wi));
@@ -566,6 +651,7 @@ $("carryBtn").addEventListener("click", ()=>{
 });
 
 $("planBody").addEventListener("change", e=>{
+  if(!requireAuth()){ renderPlan(); return; }
   const tr = e.target.closest("tr"); if(!tr) return;
   const p = db.plan.find(x=>x.week===wISO() && x.wi===+tr.dataset.wi); if(!p) return;
   const act = e.target.dataset.act;
@@ -579,6 +665,7 @@ $("planBody").addEventListener("change", e=>{
 });
 $("planBody").addEventListener("click", e=>{
   if(e.target.dataset.act!=="rm") return;
+  if(!requireAuth()) return;
   const tr = e.target.closest("tr");
   const wi = +tr.dataset.wi;
   if(!confirm("Remove WI-"+wi+" from this week's plan? (The item and its records are kept.)")) return;
@@ -594,7 +681,7 @@ function renderCatList(){
       <button class="rowbtn" data-i="${i}" title="Remove category">✕</button></div>`;
   }).join("") || '<div class="empty">No categories yet — add one below.</div>';
 }
-$("editCats").addEventListener("click", ()=>{ renderCatList(); $("catBack").classList.add("open"); $("newCat").focus(); });
+$("editCats").addEventListener("click", ()=>{ if(!requireAuth()) return; renderCatList(); $("catBack").classList.add("open"); $("newCat").focus(); });
 $("closeCats").addEventListener("click", ()=>{ $("catBack").classList.remove("open"); refreshViews(); });
 $("catBack").addEventListener("click", e=>{ if(e.target===$("catBack")){ $("catBack").classList.remove("open"); refreshViews(); } });
 $("addCat").addEventListener("click", ()=>{
@@ -667,6 +754,7 @@ function syncRecCat(){
 $("rWI").addEventListener("change", syncRecCat);
 
 $("addRec").addEventListener("click", ()=>{
+  if(!requireAuth()) return;
   const wi = parseInt($("rWI").value,10);
   if(!wi){ toast("Add a work item in Plan To-Do first"); return; }
   const hours = parseFloat($("rHours").value);
@@ -685,6 +773,7 @@ $("addRec").addEventListener("click", ()=>{
 
 $("recBody").addEventListener("click", e=>{
   if(e.target.dataset.act!=="del") return;
+  if(!requireAuth()) return;
   const id = +e.target.closest("tr").dataset.id;
   if(!confirm("Delete this entry?")) return;
   db.records = db.records.filter(r=>r.id!==id);
@@ -855,7 +944,7 @@ $("exportBtn").addEventListener("click", ()=>{
   a.click(); URL.revokeObjectURL(a.href);
   toast("Backup downloaded — save it to Google Drive");
 });
-$("importBtn").addEventListener("click", ()=>$("importFile").click());
+$("importBtn").addEventListener("click", ()=>{ if(!requireAuth()) return; $("importFile").click(); });
 $("importFile").addEventListener("change", e=>{
   const f = e.target.files[0]; if(!f) return;
   const rd = new FileReader();
@@ -912,6 +1001,7 @@ function setSync(state,msg){ const el=$("syncState");
 
 function renderUser(){
   const on = !!gUser;
+  document.body.classList.toggle("demo", !on);
   $("signinBtn").hidden = on;
   $("userChip").hidden = !on;
   if(on){ $("userName").textContent = gUser.name;
@@ -958,6 +1048,13 @@ function initGIS(){
 }
 window.__gisLoaded = initGIS;
 
+(function(){
+  const w = $("starterWarn");
+  w.addEventListener("click", e=>{ w.classList.toggle("open"); e.stopPropagation(); });
+  document.addEventListener("click", ()=>w.classList.remove("open"));
+})();
+document.querySelectorAll("[data-locksignin]").forEach(b=>
+  b.addEventListener("click", ()=>$("signinBtn").click()));
 $("signinBtn").addEventListener("click", ()=>{
   if(!configured()){
     alert("Google sign-in isn't configured yet.\n\nFollow Part 3 of the setup guide: create a free Google OAuth Client ID and paste it into index.html (the CLIENT_ID line), then upload to GitHub.\n\nUntil then the app works in Local-only mode.");
@@ -1002,11 +1099,13 @@ async function onToken(resp){
       gUser = { name:u.name||u.email, given:u.given_name||u.name||u.email,
                 email:u.email, pic:u.picture||"" };
       localStorage.setItem("tt.user", JSON.stringify(gUser));
-      /* first sign-in on this device: adopt existing local data */
+      /* first sign-in on this device: adopt legacy local data if any */
       if(!localStorage.getItem(activeKey())){
-        localStorage.setItem(activeKey(), JSON.stringify(db));
-      } else { db = load(); }
-    }
+        const legacy = localStorage.getItem(BASEKEY) || localStorage.getItem("founderTracker.v2");
+        localStorage.setItem(activeKey(), legacy || JSON.stringify(normalize({})));
+      }
+      db = load();
+    } else { db = load(); }
     renderUser();
     logSignup();
     if(pendingPush){ pendingPush=false; await drivePush(); }
@@ -1066,6 +1165,7 @@ function queuePush(){
 }
 
 /* ============ init ============ */
+document.body.classList.toggle("demo", !gUser);
 renderUser();
 renderHome();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
