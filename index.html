@@ -189,11 +189,71 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:13px;padding:10px 20px;border-radius:24px;z-index:40;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
+/* ===== Mobile dropdown nav ===== */
+.mnav{display:none;position:relative;flex:1;min-width:0}
+.mnav-btn{width:100%;background:var(--navy2);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:13.5px;font-weight:600;padding:9px 13px;border-radius:9px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mnav-btn .chev{font-size:10px;color:#59C9C2;transition:transform .15s}
+.mnav-btn.open .chev{transform:rotate(180deg)}
+.mnav-menu{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);border-radius:11px;box-shadow:0 12px 28px rgba(14,34,51,.28);z-index:30;overflow:hidden}
+.mnav-menu.open{display:block}
+.mnav-menu button{width:100%;text-align:left;background:none;border:none;font-size:14px;padding:12px 15px;color:var(--ink);border-bottom:1px solid #EFF3F7}
+.mnav-menu button:last-child{border-bottom:none}
+.mnav-menu button.cur{color:var(--teald);font-weight:700;background:var(--tsoft)}
+
+/* ===== Week calendar picker ===== */
+.pnav{position:relative}
+.pnav .plabel{cursor:pointer;border-radius:6px;padding-top:5px;padding-bottom:5px}
+.pnav .plabel:hover{background:var(--tsoft);color:var(--teald)}
+.pnav .plabel:after{content:" ▾";font-size:10px;color:var(--teald)}
+.cal{display:none;position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(14,34,51,.22);padding:14px;z-index:26;width:286px}
+.cal.open{display:block}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.cal-head b{font-size:13.5px;color:var(--navy)}
+.cal-head button{background:none;border:none;font-size:15px;color:var(--muted);cursor:pointer;padding:2px 10px;border-radius:6px}
+.cal-head button:hover{background:var(--bg)}
+.cal table{width:100%;border-collapse:separate;border-spacing:0 3px;font-size:11.5px}
+.cal th{font-family:var(--mono);font-size:9px;color:var(--muted);font-weight:600;padding:2px;text-transform:uppercase}
+.cal td{text-align:center;padding:6px 2px;color:var(--ink)}
+.cal td.dim{color:#B9C6D2}
+.cal tr.wk{cursor:pointer}
+.cal tr.wk:hover td{background:var(--tsoft)}
+.cal tr.wk:hover td:first-child{border-radius:8px 0 0 8px}
+.cal tr.wk:hover td:last-child{border-radius:0 8px 8px 0}
+.cal tr.selwk td{background:var(--teal);color:#fff}
+.cal tr.selwk td:first-child{border-radius:8px 0 0 8px}
+.cal tr.selwk td:last-child{border-radius:0 8px 8px 0}
+.cal .cal-tip{font-size:10.5px;color:var(--muted);margin-top:8px;text-align:center}
+
+/* ===== Inline create-new in dropdowns ===== */
+.inline-new{display:flex;gap:6px;align-items:center}
+.inline-new input{flex:1;border:1px solid var(--teal);border-radius:8px;padding:9px 10px;background:#fff}
+.xbtn{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:4px 6px}
+.xbtn:hover{color:var(--red)}
+
+/* ===== Status chips & aggregate bar ===== */
+.status-sel{border-radius:16px;padding:4px 10px;font-weight:700;border-width:1.5px;border-style:solid;cursor:pointer}
+.status-sel.s0{color:#5B7085;background:#F0F3F6;border-color:#D4DDE5}
+.status-sel.s1{color:#996E1A;background:#FBF3E2;border-color:#EBCB8B}
+.status-sel.s2{color:#A8402F;background:#FBEAE6;border-color:#EDB4A8}
+.status-sel.s3{color:#256F46;background:#E7F3EC;border-color:#A8D5BC}
+.statbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+.statbar b{font-size:12.5px;color:var(--navy);margin-right:2px}
+.stchip{font-size:11.5px;font-weight:700;border-radius:16px;padding:4px 12px;border:1.5px solid}
+.stchip.c0{color:#5B7085;background:#F0F3F6;border-color:#D4DDE5}
+.stchip.c1{color:#996E1A;background:#FBF3E2;border-color:#EBCB8B}
+.stchip.c2{color:#A8402F;background:#FBEAE6;border-color:#EDB4A8}
+.stchip.c3{color:#256F46;background:#E7F3EC;border-color:#A8D5BC}
+.stchip.sm{font-size:10.5px;padding:2px 9px}
+.sbar{flex-basis:100%;height:8px;border-radius:5px;overflow:hidden;display:flex;max-width:460px;background:#EDF1F5}
+.sbar i{display:block;height:100%}
+
 @media (max-width:720px){
   .topbar-in{padding:0 12px;gap:10px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
-  .navlinks{order:3;width:100%;overflow-x:auto}
+  .navlinks{display:none}
+  .mnav{display:block;order:3;width:100%}
   main{padding:16px 12px 50px}
   .launch p{min-height:0}
+  .cal{right:auto;left:50%;transform:translateX(-50%)}
 }
 </style>
 </head>
@@ -206,6 +266,15 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
     <button data-nav="plan">Plan To-Do</button>
     <button data-nav="records">Work Records</button>
     <button data-nav="dash">Dashboard</button>
+  </div>
+  <div class="mnav">
+    <button class="mnav-btn" id="mnavBtn" type="button"><span id="mnavCur">Home</span><span class="chev">▼</span></button>
+    <div class="mnav-menu" id="mnavMenu">
+      <button data-nav="home" class="cur">Home</button>
+      <button data-nav="plan">Plan To-Do</button>
+      <button data-nav="records">Work Records</button>
+      <button data-nav="dash">Dashboard</button>
+    </div>
   </div>
   <button class="icon-btn" id="backupBtn">Backup</button>
   <button class="icon-btn" id="signinBtn">Sign in with Google</button>
@@ -282,6 +351,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
       <button id="planPrev" aria-label="Previous week">‹</button>
       <span class="plabel" id="planLabel"></span>
       <button id="planNext" aria-label="Next week">›</button>
+      <div class="cal" id="planCal"></div>
     </div>
   </div>
 
@@ -289,23 +359,27 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
     <h2>Add work item to this week</h2>
     <div class="lockbar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>Sign in with Google to add and edit your own work items</span><button class="btn" data-locksignin>Sign in</button></div>
     <div class="frow">
-      <div class="field grow2"><label for="niName">New work item</label>
-        <input id="niName" placeholder="e.g. Customer conversation deck"></div>
-      <div class="field"><label for="niCat">Category</label><select id="niCat"></select></div>
+      <div class="field grow2"><label for="itemSel">Work item</label>
+        <select id="itemSel"></select>
+        <div class="inline-new" id="itemNew" hidden>
+          <input id="itemNewIn" placeholder="Type the new work item name…" maxlength="80">
+          <button class="xbtn" id="itemNewX" title="Back to list" type="button">✕</button>
+        </div></div>
+      <div class="field"><label for="niCat" id="niCatLab">Category</label>
+        <select id="niCat"></select>
+        <div class="inline-new" id="catNewWrap" hidden>
+          <input id="catNewIn" placeholder="New category name…" maxlength="24">
+          <button class="xbtn" id="catNewX" title="Back to list" type="button">✕</button>
+        </div></div>
       <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
-        <button class="btn" id="addNewItem">Add new (auto WI#)</button></div>
+        <button class="btn" id="addToWeek">Add to week</button></div>
     </div>
     <div class="frow" style="margin-bottom:0">
-      <div class="field grow2"><label for="existSel">Or add an existing item (keeps its WI#)</label>
-        <select id="existSel"></select></div>
-      <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
-        <button class="btn secondary" id="addExistItem">Add to week</button></div>
-      <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
-        <button class="btn secondary" id="carryBtn">Carry over open items from last week</button></div>
-      <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
-        <button class="btn secondary" id="editCats">Edit categories</button></div>
+      <button class="btn secondary" id="carryBtn">Carry over open items from last week</button>
     </div>
   </div>
+
+  <div id="planStat"></div>
 
   <div class="tbl-wrap"><table id="planTable">
     <thead><tr>
@@ -326,6 +400,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
       <button id="recPrev" aria-label="Previous week">‹</button>
       <span class="plabel" id="recLabel"></span>
       <button id="recNext" aria-label="Next week">›</button>
+      <div class="cal" id="recCal"></div>
     </div>
   </div>
 
@@ -338,6 +413,10 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
       <div class="field"><label for="rCat">Category</label><select id="rCat"></select></div>
       <div class="field"><label for="rHours">Hours</label>
         <input type="number" id="rHours" min="0" step="0.25" placeholder="1.5"></div>
+      <div class="field"><label for="rStatus">Item status after this work</label>
+        <select id="rStatus"></select></div>
+      <div class="field"><label for="rProg">Progress</label>
+        <select id="rProg"></select></div>
     </div>
     <div class="frow">
       <div class="field grow2"><label for="rTask">Task description (detail)</label>
@@ -531,9 +610,14 @@ function planForWeek(w){ return db.plan.filter(p=>p.week===w); }
 
 /* ============ navigation ============ */
 let currentView = "home";
+const VIEWNAMES = {home:"Home", plan:"Plan To-Do", records:"Work Records", dash:"Dashboard"};
 function refreshViews(){ show(currentView); }
 function show(v){
   currentView = v;
+  $("mnavCur").textContent = VIEWNAMES[v];
+  $("mnavMenu").classList.remove("open"); $("mnavBtn").classList.remove("open");
+  document.querySelectorAll("#mnavMenu button").forEach(b=>
+    b.classList.toggle("cur", b.dataset.nav===v));
   ["home","plan","records","dash"].forEach(x=>{
     $("view-"+x).classList.toggle("active", x===v);
   });
@@ -547,6 +631,15 @@ function show(v){
 }
 document.querySelectorAll("[data-nav]").forEach(b=>
   b.addEventListener("click", ()=>show(b.dataset.nav)));
+$("mnavBtn").addEventListener("click", e=>{
+  e.stopPropagation();
+  $("mnavMenu").classList.toggle("open");
+  $("mnavBtn").classList.toggle("open");
+});
+document.addEventListener("click", e=>{
+  if(!e.target.closest(".mnav")){
+    $("mnavMenu").classList.remove("open"); $("mnavBtn").classList.remove("open"); }
+});
 $("brandHome").addEventListener("click", ()=>show("home"));
 
 /* ============ LANDING ============ */
@@ -568,21 +661,23 @@ function renderPlan(){
   $("planLabel").textContent = weekLabel(weekStart);
   $("weekTheme").value = (db.weeks[wISO()]||{}).theme || "";
   $("weekTheme").readOnly = !gUser;
-  $("niCat").innerHTML = db.cats.map(c=>`<option>${esc(c)}</option>`).join("");
+  $("niCat").innerHTML = db.cats.map(c=>`<option>${esc(c)}</option>`).join("") +
+    `<option value="__new">➕ New category…</option><option value="__edit">✎ Edit categories…</option>`;
 
   const w = wISO();
   const inPlan = new Set(planForWeek(w).map(p=>p.wi));
   const avail = db.items.filter(i=>!inPlan.has(i.wi))
     .sort((a,b)=>a.wi-b.wi);
-  $("existSel").innerHTML = avail.length
-    ? avail.map(i=>`<option value="${i.wi}">WI-${i.wi} — ${esc(i.name)}</option>`).join("")
-    : "<option value=''>All existing items are already in this week</option>";
+  $("itemSel").innerHTML =
+    avail.map(i=>`<option value="${i.wi}">WI-${i.wi} — ${esc(i.name)}</option>`).join("") +
+    `<option value="__new">➕ Create new work item…</option>`;
+  updateAddRow();
 
   const rows = planForWeek(w);
   const body = $("planBody");
   if(!rows.length){
-    body.innerHTML = `<tr><td colspan="9"><div class="empty">No work items planned for this week yet.<br>Add a new item, pick an existing WI#, or carry over open items from last week.</div></td></tr>`;
-    $("planFoot").innerHTML = "";
+    body.innerHTML = `<tr><td colspan="9"><div class="empty">No work items planned for this week yet.<br>Pick or create a work item above, or carry over open items from last week.</div></td></tr>`;
+    $("planFoot").innerHTML = ""; $("planStat").innerHTML = "";
     return;
   }
   let weekHrs = 0;
@@ -608,6 +703,22 @@ function renderPlan(){
   const closed = rows.filter(r=>r.status==="Closed").length;
   $("planFoot").innerHTML = `<tr><td colspan="5">Week total · ${rows.length} items · ${closed} closed</td>
     <td></td><td>${h(weekHrs)}</td><td colspan="2"></td></tr>`;
+  $("planStat").innerHTML = statBar(rows, "This week:");
+}
+function statCounts(planRows){
+  return STATUSES.map(s=>planRows.filter(p=>p.status===s).length);
+}
+function statBar(planRows, label){
+  if(!planRows.length) return "";
+  const c = statCounts(planRows), total = planRows.length;
+  const COLORS = ["#C9D4DD","#EBCB8B","#EDB4A8","#7FC79E"];
+  const chips = c.map((n,i)=> n ? `<span class="stchip c${i}">${n} ${STATUSES[i]}</span>` : "").join("");
+  const bar = `<span class="sbar">${c.map((n,i)=> n ? `<i style="width:${(n/total*100).toFixed(1)}%;background:${COLORS[i]}"></i>` : "").join("")}</span>`;
+  return `<div class="statbar">${label?`<b>${label}</b>`:""}${chips}${bar}</div>`;
+}
+function statChips(planRows){
+  const c = statCounts(planRows);
+  return c.map((n,i)=> n ? `<span class="stchip sm c${i}">${n} ${STATUSES[i]}</span>` : "").join("");
 }
 
 $("weekTheme").addEventListener("change", ()=>{
@@ -618,23 +729,72 @@ $("weekTheme").addEventListener("change", ()=>{
   save(); toast("Week theme saved");
 });
 
-$("addNewItem").addEventListener("click", ()=>{
-  if(!requireAuth()) return;
-  const name = $("niName").value.trim();
-  if(!name){ toast("Enter a work item name"); return; }
-  const wi = db.seq++;
-  db.items.push({wi, name, cat: $("niCat").value});
-  db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
-  $("niName").value = "";
-  save(); renderPlan(); toast("WI-"+wi+" added");
+/* --- unified add row: item -> category -> add --- */
+function updateAddRow(){
+  const sel = $("itemSel");
+  const isNew = sel.value === "__new";
+  sel.hidden = isNew; $("itemNew").hidden = !isNew;
+  const catSel = $("niCat");
+  if(!isNew){
+    $("catNewWrap").hidden = true; catSel.hidden = false;
+    const it = item(parseInt(sel.value,10));
+    if(it && db.cats.includes(it.cat)) catSel.value = it.cat;
+    catSel.disabled = !!it;
+    $("niCatLab").textContent = it ? "Category (from item)" : "Category";
+  } else {
+    catSel.disabled = false;
+    $("niCatLab").textContent = "Category";
+  }
+}
+$("itemSel").addEventListener("change", ()=>{
+  updateAddRow();
+  if($("itemSel").value==="__new") $("itemNewIn").focus();
 });
-
-$("addExistItem").addEventListener("click", ()=>{
+$("itemNewX").addEventListener("click", ()=>{
+  $("itemNewIn").value=""; $("itemSel").selectedIndex = 0; updateAddRow();
+});
+$("niCat").addEventListener("change", ()=>{
+  const v = $("niCat").value;
+  if(v==="__new"){
+    $("niCat").hidden = true; $("catNewWrap").hidden = false; $("catNewIn").focus();
+  } else if(v==="__edit"){
+    $("niCat").selectedIndex = 0;
+    if(!requireAuth()) return;
+    renderCatList(); $("catBack").classList.add("open"); $("newCat").focus();
+  }
+});
+$("catNewX").addEventListener("click", ()=>{
+  $("catNewIn").value=""; $("catNewWrap").hidden = true;
+  $("niCat").hidden = false; $("niCat").selectedIndex = 0;
+});
+$("addToWeek").addEventListener("click", ()=>{
   if(!requireAuth()) return;
-  const wi = parseInt($("existSel").value,10);
-  if(!wi){ toast("No item selected"); return; }
+  const creatingItem = $("itemSel").hidden;
+  if(!creatingItem){
+    const wi = parseInt($("itemSel").value,10);
+    if(!wi){ toast("Pick a work item, or create a new one"); return; }
+    db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
+    save(); renderPlan(); toast("WI-"+wi+" added to this week");
+    return;
+  }
+  const name = $("itemNewIn").value.trim();
+  if(!name){ toast("Type the new work item name"); return; }
+  let cat;
+  if(!$("catNewWrap").hidden){
+    cat = $("catNewIn").value.trim();
+    if(!cat){ toast("Type the new category name"); return; }
+    const exist = db.cats.find(x=>x.toLowerCase()===cat.toLowerCase());
+    if(exist) cat = exist; else db.cats.push(cat);
+  } else {
+    cat = $("niCat").value;
+    if(cat==="__new"||cat==="__edit"){ toast("Pick a category"); return; }
+  }
+  const wi = db.seq++;
+  db.items.push({wi, name, cat});
   db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
-  save(); renderPlan(); toast("WI-"+wi+" added to this week");
+  $("itemNewIn").value=""; $("catNewIn").value="";
+  $("catNewWrap").hidden = true; $("niCat").hidden = false;
+  save(); renderPlan(); toast("WI-"+wi+" added");
 });
 
 $("carryBtn").addEventListener("click", ()=>{
@@ -681,7 +841,6 @@ function renderCatList(){
       <button class="rowbtn" data-i="${i}" title="Remove category">✕</button></div>`;
   }).join("") || '<div class="empty">No categories yet — add one below.</div>';
 }
-$("editCats").addEventListener("click", ()=>{ if(!requireAuth()) return; renderCatList(); $("catBack").classList.add("open"); $("newCat").focus(); });
 $("closeCats").addEventListener("click", ()=>{ $("catBack").classList.remove("open"); refreshViews(); });
 $("catBack").addEventListener("click", e=>{ if(e.target===$("catBack")){ $("catBack").classList.remove("open"); refreshViews(); } });
 $("addCat").addEventListener("click", ()=>{
@@ -705,6 +864,58 @@ $("catList").addEventListener("click", e=>{
 $("planPrev").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()-7); renderPlan(); });
 $("planNext").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()+7); renderPlan(); });
 
+/* --- calendar week picker (shared by Plan and Records) --- */
+const MONTHNAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function makeWeekPicker(labelId, calId, onPick){
+  let vy = 0, vm = 0;
+  const cal = $(calId);
+  function draw(){
+    const selISO = wISO();
+    const first = new Date(vy, vm, 1);
+    const start = mondayOf(first);
+    let rows = "";
+    const cur = new Date(start);
+    for(let wrow=0; wrow<6; wrow++){
+      if(cur > new Date(vy, vm+1, 0) && cur.getDate()<=7 && wrow>0) break;
+      const wkMon = new Date(cur);
+      let tds = "";
+      for(let d=0; d<7; d++){
+        tds += `<td class="${cur.getMonth()===vm?"":"dim"}">${cur.getDate()}</td>`;
+        cur.setDate(cur.getDate()+1);
+      }
+      rows += `<tr class="wk ${iso(wkMon)===selISO?"selwk":""}" data-mon="${iso(wkMon)}">${tds}</tr>`;
+      if(cur.getMonth()!==vm && cur > new Date(vy, vm+1, 0)) break;
+    }
+    cal.innerHTML = `<div class="cal-head">
+        <button type="button" data-cm="-1">‹</button><b>${MONTHNAMES[vm]} ${vy}</b><button type="button" data-cm="1">›</button>
+      </div>
+      <table><tr><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr>${rows}</table>
+      <div class="cal-tip">Click any day to select its Mon–Sun week</div>`;
+  }
+  $(labelId).addEventListener("click", e=>{
+    e.stopPropagation();
+    document.querySelectorAll(".cal.open").forEach(c=>{ if(c!==cal) c.classList.remove("open"); });
+    const opening = !cal.classList.contains("open");
+    cal.classList.toggle("open", opening);
+    if(opening){ vy = weekStart.getFullYear(); vm = weekStart.getMonth(); draw(); }
+  });
+  cal.addEventListener("click", e=>{
+    e.stopPropagation();
+    const mv = e.target.closest("[data-cm]");
+    if(mv){ vm += +mv.dataset.cm;
+      if(vm<0){vm=11;vy--;} if(vm>11){vm=0;vy++;} draw(); return; }
+    const row = e.target.closest("tr.wk");
+    if(row){ weekStart = fromISO(row.dataset.mon);
+      setTimeout(()=>cal.classList.remove("open"), 150);
+      onPick(); }
+  });
+}
+makeWeekPicker("planLabel", "planCal", ()=>renderPlan());
+makeWeekPicker("recLabel", "recCal", ()=>renderRecords());
+document.addEventListener("click", e=>{
+  if(!e.target.closest(".pnav")) document.querySelectorAll(".cal.open").forEach(c=>c.classList.remove("open"));
+});
+
 /* ============ WORK RECORDS ============ */
 function renderRecords(){
   $("recLabel").textContent = weekLabel(weekStart);
@@ -723,6 +934,7 @@ function renderRecords(){
   if([...sel.options].some(o=>o.value===prev)) sel.value = prev;
   $("rCat").innerHTML = db.cats.map(c=>`<option>${esc(c)}</option>`).join("");
   syncRecCat();
+  syncRecStatus();
 
   const recs = recsForWeek(weekStart)
     .sort((a,b)=> a.date===b.date ? b.id-a.id : (a.date<b.date?1:-1));
@@ -750,8 +962,28 @@ function renderRecords(){
 function syncRecCat(){
   const it = item(parseInt($("rWI").value,10));
   if(it && db.cats.includes(it.cat)) $("rCat").value = it.cat;
+  syncRecStatus();
+}
+function recWeekISO(){
+  const dstr = $("rDate").value || iso(new Date());
+  return iso(mondayOf(fromISO(dstr)));
+}
+function syncRecStatus(){
+  const wi = parseInt($("rWI").value,10);
+  const p = db.plan.find(x=>x.week===recWeekISO() && x.wi===wi);
+  const latest = p || db.plan.filter(x=>x.wi===wi).sort((a,b)=>a.week<b.week?1:-1)[0];
+  const st = latest ? latest.status : "In progress";
+  const pg = latest ? latest.progress : 0;
+  $("rStatus").innerHTML = STATUSES.map(s=>`<option ${s===st?"selected":""}>${s}</option>`).join("");
+  const steps = [0,25,50,75,100];
+  if(!steps.includes(pg)) steps.splice(steps.findIndex(x=>x>pg), 0, pg);
+  $("rProg").innerHTML = steps.map(v=>`<option value="${v}" ${v===pg?"selected":""}>${v}%</option>`).join("");
 }
 $("rWI").addEventListener("change", syncRecCat);
+$("rDate").addEventListener("change", syncRecStatus);
+$("rStatus").addEventListener("change", ()=>{
+  if($("rStatus").value==="Closed") $("rProg").value = "100";
+});
 
 $("addRec").addEventListener("click", ()=>{
   if(!requireAuth()) return;
@@ -762,9 +994,13 @@ $("addRec").addEventListener("click", ()=>{
   const date = $("rDate").value || iso(new Date());
   db.records.push({ id: Date.now(), date, wi, task: $("rTask").value.trim(),
     cat: $("rCat").value, hours, notes: $("rNotes").value.trim() });
-  /* nudge plan status */
-  const p = db.plan.find(x=>x.week===iso(mondayOf(fromISO(date))) && x.wi===wi);
-  if(p && p.status==="Not started") p.status = "In progress";
+  /* update (or create) the plan entry for that week with the chosen status */
+  const wkey = iso(mondayOf(fromISO(date)));
+  const st = $("rStatus").value, pg = parseInt($("rProg").value,10)||0;
+  let p = db.plan.find(x=>x.week===wkey && x.wi===wi);
+  if(!p){ p = {week:wkey, wi, status:st, progress:pg, notes:""}; db.plan.push(p); }
+  else { p.status = st; p.progress = pg; }
+  if(p.status==="Closed") p.progress = 100;
   $("rHours").value=""; $("rTask").value=""; $("rNotes").value="";
   save();
   if(!inWeek(date, weekStart)) weekStart = mondayOf(fromISO(date));
@@ -825,9 +1061,12 @@ function renderDash(){
   const byCat = {};
   wk.forEach(x=>Object.entries(x.byCat).forEach(([c,v])=>byCat[c]=(byCat[c]||0)+v));
   const max = Math.max(1,...Object.values(byCat));
+  const allPlan = wk.flatMap(x=>x.plan);
   $("dashMonthCats").innerHTML = Object.keys(byCat).length
     ? `<h3>Month aggregate — hours by category<span class="wk-hrs">${h(total)}</span></h3>
-       <div class="sub">Sum of the ${wk.length} weeks below</div>${catBars(byCat,max)}`
+       <div class="sub">Sum of the ${wk.length} weeks below</div>
+       ${allPlan.length?`<div class="statbar" style="margin-bottom:12px">${statChips(allPlan)}</div>`:""}
+       ${catBars(byCat,max)}`
     : `<div class="empty">No hours logged in ${esc($("dashLabel").textContent)} yet.<br>Weeks of the month are shown below — log work and they fill in.</div>`;
 
   $("dashWeeks").innerHTML = '<div class="wkgrid">' + wk.map((x,i)=>{
@@ -839,6 +1078,7 @@ function renderDash(){
     return `<div class="dcard wk" data-week="${x.w}" title="Open this week in Plan To-Do">
       <h3><span class="wk-no">Week ${i+1}</span>${range}<span class="wk-hrs">${h(x.hours)}</span></h3>
       <div class="sub">${theme?esc(theme)+" · ":""}${x.recs.length} entries · ${x.closed.length}/${x.plan.length} items closed</div>
+      ${x.plan.length?`<div class="statbar" style="margin:0 0 9px">${statChips(x.plan)}</div>`:""}
       ${Object.keys(x.byCat).length ? catBars(x.byCat,wMax)
         : '<div class="sub" style="margin-top:6px">No activity this week.</div>'}
       ${x.closed.length ? `<div class="deliv"><small>Delivered / closed</small><div class="chips">${
