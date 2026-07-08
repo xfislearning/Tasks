@@ -248,12 +248,82 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .sbar i{display:block;height:100%}
 
 @media (max-width:720px){
-  .topbar-in{padding:0 12px;gap:10px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+  html{font-size:16px;-webkit-text-size-adjust:100%}
+  body{background:#F5F7FA;color:#142536}
+  .topbar{box-shadow:0 2px 12px rgba(14,34,51,.22)}
+  .topbar-in{padding:10px 12px;gap:8px;height:auto;flex-wrap:wrap;align-items:center}
+  .brand{flex:1 1 auto;font-size:17px;line-height:1.15;min-width:145px}
+  .brand small{font-size:10.5px;margin-top:1px}
   .navlinks{display:none}
-  .mnav{display:block;order:3;width:100%}
-  main{padding:16px 12px 50px}
-  .launch p{min-height:0}
-  .cal{right:auto;left:50%;transform:translateX(-50%)}
+  .icon-btn{font-size:12.5px;padding:8px 10px;white-space:nowrap;border-radius:9px}
+  #signinBtn{max-width:48%;overflow:hidden;text-overflow:ellipsis}
+  .userchip{max-width:100%;flex:1 1 100%;padding:6px}
+  .userchip b{max-width:190px;font-size:13px}
+  .userchip span{font-size:11px}
+  .mnav{display:block;order:3;flex:1 1 100%;width:100%;min-width:100%;position:relative}
+  .mnav-btn{min-height:46px;font-size:16px;padding:11px 14px;border-radius:10px}
+  .mnav-menu{left:0;right:0;top:calc(100% + 6px);max-height:calc(100vh - 130px);overflow-y:auto;border-radius:12px;box-shadow:0 16px 34px rgba(14,34,51,.35)}
+  .mnav-menu button{font-size:16px;min-height:48px;padding:14px 16px;color:#142536}
+  main{padding:18px 14px 56px;overflow-x:hidden}
+  .hero{margin:10px 0 18px}
+  .hero h1{font-size:25px;line-height:1.18;color:#0A1B2B}
+  .hero p{font-size:16px;line-height:1.5;color:#42586C}
+  .trust{padding:14px;border-color:#8DD7D2}
+  .trust b{font-size:15px;color:#032D28}
+  .trust span{font-size:14.5px;line-height:1.65;color:#124A44}
+  .trust code{font-size:12.5px;word-break:break-word}
+  .launch-grid{grid-template-columns:1fr;gap:12px}
+  .launch{padding:18px;border-radius:13px}
+  .launch p{min-height:0;font-size:15px;line-height:1.55;color:#42586C}
+  .launch h2{font-size:18px;color:#0A1B2B}
+  .launch .stat{font-size:13.5px}
+  .viewhead{gap:10px;margin-bottom:14px}
+  .viewhead h1{font-size:24px;color:#0A1B2B}
+  .theme-wrap{flex:1 1 100%;min-width:0}
+  .theme-wrap label{font-size:12px}
+  .theme-wrap input{max-width:none;font-size:16px;padding:11px 12px}
+  .pnav{width:100%;justify-content:space-between;padding:5px}
+  .pnav button{font-size:22px;min-width:44px;min-height:40px}
+  .pnav .plabel{font-size:14px;text-align:center;flex:1;white-space:normal;line-height:1.35}
+  .formcard,.dcard{padding:16px;border-radius:13px}
+  .formcard h2{font-size:17px}
+  .frow{gap:10px}
+  .field,.field.grow2{min-width:100%;flex:1 1 100%}
+  .field label{font-size:12px;color:#52697D}
+  input,select,textarea,.field input,.field select,.field textarea{font-size:16px;min-height:44px;padding:11px 12px;color:#142536}
+  textarea{line-height:1.45}
+  .btn{width:100%;font-size:15.5px;min-height:44px;padding:11px 15px}
+  .toolbar .btn{width:auto}
+  .lockbar{align-items:flex-start;flex-wrap:wrap}
+  .lockbar span{font-size:14px;line-height:1.45}
+  .lockbar .btn{margin-left:0;width:100%}
+  .tbl-wrap{border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{font-size:14.5px;min-width:760px}
+  th{font-size:11px;padding:11px 12px}
+  td{padding:12px}
+  .status-sel,.prog-in,.notes-in{font-size:14px;min-height:38px}
+  .kpis{grid-template-columns:1fr;gap:10px}
+  .kpi{padding:17px}
+  .kpi small{font-size:11px}
+  .kpi .v{font-size:28px}
+  .wkgrid{grid-template-columns:1fr}
+  .catbar{grid-template-columns:96px 1fr 46px;font-size:13.5px}
+  .starter{padding:10px 12px;gap:7px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .starter>b,.schip{font-size:12px;flex:none}
+  .spop{position:fixed;left:12px;right:12px;top:118px;transform:none;width:auto;max-width:none}
+  .spop:before{display:none}
+  .cal{right:auto;left:50%;transform:translateX(-50%);width:min(326px,calc(100vw - 28px));max-height:calc(100vh - 130px);overflow-y:auto}
+  .dialog{width:calc(100vw - 28px);padding:20px}
+  .dialog h2{font-size:20px}
+  .dialog p{font-size:15px}
+  .toast{bottom:18px;max-width:calc(100vw - 24px);white-space:normal;text-align:center;font-size:14px}
+}
+
+@media (max-width:380px){
+  .topbar-in{gap:7px}
+  .brand{flex-basis:100%}
+  .icon-btn{flex:1 1 calc(50% - 4px);padding-left:8px;padding-right:8px}
+  #signinBtn{max-width:none}
 }
 </style>
 </head>
