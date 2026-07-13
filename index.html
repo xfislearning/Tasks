@@ -2,12 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E2233">
 <title>Tasks Tracker</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tasks">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,7 +30,8 @@ button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 
 /* ===== Top nav ===== */
-.topbar{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20}
+.topbar{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top)}
+body{padding-bottom:env(safe-area-inset-bottom)}
 .topbar-in{max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:26px;padding:0 22px;height:58px}
 .brand{font-weight:700;font-size:16px;letter-spacing:.2px;cursor:pointer;white-space:nowrap}
 .brand small{display:block;color:#59C9C2;font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.8px}
@@ -186,6 +191,8 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .dialog h2{font-size:17px;color:var(--navy);margin-bottom:5px}
 .dialog p{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:16px}
 .dialog .btn{width:100%;margin-bottom:9px}
+.tmpl-note{font-size:12px;color:var(--muted);text-align:center;margin-top:2px}
+.tmpl-note a{color:var(--teald);font-weight:600}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:13px;padding:10px 20px;border-radius:24px;z-index:40;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
@@ -248,82 +255,12 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .sbar i{display:block;height:100%}
 
 @media (max-width:720px){
-  html{font-size:16px;-webkit-text-size-adjust:100%}
-  body{background:#F5F7FA;color:#142536}
-  .topbar{box-shadow:0 2px 12px rgba(14,34,51,.22)}
-  .topbar-in{padding:10px 12px;gap:8px;height:auto;flex-wrap:wrap;align-items:center}
-  .brand{flex:1 1 auto;font-size:17px;line-height:1.15;min-width:145px}
-  .brand small{font-size:10.5px;margin-top:1px}
+  .topbar-in{padding:0 12px;gap:10px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
   .navlinks{display:none}
-  .icon-btn{font-size:12.5px;padding:8px 10px;white-space:nowrap;border-radius:9px}
-  #signinBtn{max-width:48%;overflow:hidden;text-overflow:ellipsis}
-  .userchip{max-width:100%;flex:1 1 100%;padding:6px}
-  .userchip b{max-width:190px;font-size:13px}
-  .userchip span{font-size:11px}
-  .mnav{display:block;order:3;flex:1 1 100%;width:100%;min-width:100%;position:relative}
-  .mnav-btn{min-height:46px;font-size:16px;padding:11px 14px;border-radius:10px}
-  .mnav-menu{left:0;right:0;top:calc(100% + 6px);max-height:calc(100vh - 130px);overflow-y:auto;border-radius:12px;box-shadow:0 16px 34px rgba(14,34,51,.35)}
-  .mnav-menu button{font-size:16px;min-height:48px;padding:14px 16px;color:#142536}
-  main{padding:18px 14px 56px;overflow-x:hidden}
-  .hero{margin:10px 0 18px}
-  .hero h1{font-size:25px;line-height:1.18;color:#0A1B2B}
-  .hero p{font-size:16px;line-height:1.5;color:#42586C}
-  .trust{padding:14px;border-color:#8DD7D2}
-  .trust b{font-size:15px;color:#032D28}
-  .trust span{font-size:14.5px;line-height:1.65;color:#124A44}
-  .trust code{font-size:12.5px;word-break:break-word}
-  .launch-grid{grid-template-columns:1fr;gap:12px}
-  .launch{padding:18px;border-radius:13px}
-  .launch p{min-height:0;font-size:15px;line-height:1.55;color:#42586C}
-  .launch h2{font-size:18px;color:#0A1B2B}
-  .launch .stat{font-size:13.5px}
-  .viewhead{gap:10px;margin-bottom:14px}
-  .viewhead h1{font-size:24px;color:#0A1B2B}
-  .theme-wrap{flex:1 1 100%;min-width:0}
-  .theme-wrap label{font-size:12px}
-  .theme-wrap input{max-width:none;font-size:16px;padding:11px 12px}
-  .pnav{width:100%;justify-content:space-between;padding:5px}
-  .pnav button{font-size:22px;min-width:44px;min-height:40px}
-  .pnav .plabel{font-size:14px;text-align:center;flex:1;white-space:normal;line-height:1.35}
-  .formcard,.dcard{padding:16px;border-radius:13px}
-  .formcard h2{font-size:17px}
-  .frow{gap:10px}
-  .field,.field.grow2{min-width:100%;flex:1 1 100%}
-  .field label{font-size:12px;color:#52697D}
-  input,select,textarea,.field input,.field select,.field textarea{font-size:16px;min-height:44px;padding:11px 12px;color:#142536}
-  textarea{line-height:1.45}
-  .btn{width:100%;font-size:15.5px;min-height:44px;padding:11px 15px}
-  .toolbar .btn{width:auto}
-  .lockbar{align-items:flex-start;flex-wrap:wrap}
-  .lockbar span{font-size:14px;line-height:1.45}
-  .lockbar .btn{margin-left:0;width:100%}
-  .tbl-wrap{border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table{font-size:14.5px;min-width:760px}
-  th{font-size:11px;padding:11px 12px}
-  td{padding:12px}
-  .status-sel,.prog-in,.notes-in{font-size:14px;min-height:38px}
-  .kpis{grid-template-columns:1fr;gap:10px}
-  .kpi{padding:17px}
-  .kpi small{font-size:11px}
-  .kpi .v{font-size:28px}
-  .wkgrid{grid-template-columns:1fr}
-  .catbar{grid-template-columns:96px 1fr 46px;font-size:13.5px}
-  .starter{padding:10px 12px;gap:7px;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
-  .starter>b,.schip{font-size:12px;flex:none}
-  .spop{position:fixed;left:12px;right:12px;top:118px;transform:none;width:auto;max-width:none}
-  .spop:before{display:none}
-  .cal{right:auto;left:50%;transform:translateX(-50%);width:min(326px,calc(100vw - 28px));max-height:calc(100vh - 130px);overflow-y:auto}
-  .dialog{width:calc(100vw - 28px);padding:20px}
-  .dialog h2{font-size:20px}
-  .dialog p{font-size:15px}
-  .toast{bottom:18px;max-width:calc(100vw - 24px);white-space:normal;text-align:center;font-size:14px}
-}
-
-@media (max-width:380px){
-  .topbar-in{gap:7px}
-  .brand{flex-basis:100%}
-  .icon-btn{flex:1 1 calc(50% - 4px);padding-left:8px;padding-right:8px}
-  #signinBtn{max-width:none}
+  .mnav{display:block;order:3;width:100%}
+  main{padding:16px 12px 50px}
+  .launch p{min-height:0}
+  .cal{right:auto;left:50%;transform:translateX(-50%)}
 }
 </style>
 </head>
@@ -346,6 +283,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
       <button data-nav="dash">Dashboard</button>
     </div>
   </div>
+  <button class="icon-btn" id="installBtn" hidden>⤓ Install app</button>
   <button class="icon-btn" id="backupBtn">Backup</button>
   <button class="icon-btn" id="signinBtn">Sign in with Google</button>
   <div class="userchip" id="userChip" hidden>
@@ -532,8 +470,11 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
     <p>Signed in, your data auto-syncs to a <b>tasks-tracker-data.json</b> file in your own Google Drive. You can still export a manual backup file anytime, or import one to restore.</p>
     <button class="btn" id="exportXlsx">Export to Excel (.xlsx)</button>
     <button class="btn secondary" id="exportBtn">Export backup (.json)</button>
-    <button class="btn secondary" id="importBtn">Import backup</button>
+    <button class="btn secondary" id="importXlsxBtn">Import from Excel (.xlsx)</button>
+    <button class="btn secondary" id="importBtn">Import backup (.json)</button>
     <input type="file" id="importFile" accept=".json,application/json" hidden>
+    <input type="file" id="importXlsxFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+    <p class="tmpl-note">Bringing data from a spreadsheet? <a href="Tasks-Tracker-Import-Template.xlsx" download>Download the import template</a> — fill it in, then import it above.</p>
     <button class="btn secondary" id="closeSheet">Close</button>
   </div>
 </div>
@@ -684,6 +625,7 @@ const VIEWNAMES = {home:"Home", plan:"Plan To-Do", records:"Work Records", dash:
 function refreshViews(){ show(currentView); }
 function show(v){
   currentView = v;
+  try{ history.replaceState(null, "", v==="home" ? location.pathname : "#"+v); }catch(e){}
   $("mnavCur").textContent = VIEWNAMES[v];
   $("mnavMenu").classList.remove("open"); $("mnavBtn").classList.remove("open");
   document.querySelectorAll("#mnavMenu button").forEach(b=>
@@ -1255,6 +1197,125 @@ $("exportBtn").addEventListener("click", ()=>{
   toast("Backup downloaded — save it to Google Drive");
 });
 $("importBtn").addEventListener("click", ()=>{ if(!requireAuth()) return; $("importFile").click(); });
+
+/* ---- Import from Excel (matches the import template / export format) ---- */
+$("importXlsxBtn").addEventListener("click", ()=>{ if(!requireAuth()) return; $("importXlsxFile").click(); });
+function xlsDate(v){
+  if(v instanceof Date && !isNaN(v)) return iso(v);
+  if(typeof v === "number"){                       /* Excel serial */
+    const ms = Math.round((v - 25569) * 86400000);
+    const d = new Date(ms);
+    return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");
+  }
+  if(typeof v === "string" && v.trim()){
+    const m = v.trim().match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+    if(m){ let y=+m[3]; if(y<100) y+=2000; return iso(new Date(y, +m[1]-1, +m[2])); }
+    const d = new Date(v); if(!isNaN(d)) return iso(d);
+  }
+  return null;
+}
+function normStatus(s, prog){
+  const t = String(s||"").trim().toLowerCase();
+  if(t.startsWith("clos")||t==="done") return "Closed";
+  if(t.includes("progress")) return "In progress";
+  if(t.startsWith("block")) return "Blocked";
+  if(t.startsWith("not")) return "Not started";
+  return (prog>=100) ? "Closed" : (prog>0 ? "In progress" : "Not started");
+}
+function keyed(row){
+  const out = {};
+  for(const k in row){
+    const n = k.toLowerCase().replace(/[^a-z#]/g,"");
+    out[n] = row[k];
+  }
+  return out;
+}
+$("importXlsxFile").addEventListener("change", e=>{
+  const f = e.target.files[0]; e.target.value = "";
+  if(!f) return;
+  const rd = new FileReader();
+  rd.onload = async ()=>{
+    try{
+      await loadXLSX();
+      const wb = XLSX.read(new Uint8Array(rd.result), {type:"array", cellDates:true});
+      const planName = wb.SheetNames.find(n=>/plan/i.test(n));
+      const recName  = wb.SheetNames.find(n=>/record/i.test(n));
+      if(!planName && !recName){ toast("No 'Plan To-Do' or 'Work Records' sheet found"); return; }
+      const items = {}, plan = [], records = [], weeks = {}, cats = new Set(DEFAULT_CATS);
+      let skipped = 0, maxWi = 0;
+      const nameMap = {};                    /* normalized item name -> WI# */
+      const nkey = s => String(s||"").trim().toLowerCase().replace(/\s+/g," ");
+      const resolveWi = (r)=>{               /* explicit WI# wins; else match by name; else auto-create */
+        let wi = parseInt(r["wi#"] ?? r["wi"], 10) || 0;
+        const name = r["workitem"] ? String(r["workitem"]).trim() : "";
+        const key = nkey(name);
+        if(wi){ maxWi = Math.max(maxWi, wi); if(key && !nameMap[key]) nameMap[key] = wi; return {wi, name}; }
+        if(!key) return {wi:0, name:""};
+        if(!nameMap[key]){ nameMap[key] = ++maxWi; }   /* never seen -> auto-populate new item */
+        return {wi: nameMap[key], name};
+      };
+      const noteItem = (wi, name, cat)=>{
+        if(!items[wi]) items[wi] = {wi, name:(name||"Item "+wi), cat:(cat||"Other")};
+        else { if(name && items[wi].name.startsWith("Item ")) items[wi].name = name;
+               if(cat && items[wi].cat==="Other") items[wi].cat = cat; }
+        if(cat) cats.add(cat);
+      };
+      if(planName){
+        XLSX.utils.sheet_to_json(wb.Sheets[planName], {defval:null}).forEach(raw=>{
+          const r = keyed(raw);
+          const {wi, name} = resolveWi(r);
+          const dstr = xlsDate(r["weekof"] ?? r["week"]);
+          if(!wi || !dstr){ skipped++; return; }
+          const wk = iso(mondayOf(fromISO(dstr)));
+          const cat = r["category"] ? String(r["category"]).trim() : null;
+          noteItem(wi, name || null, cat);
+          const rawProg = r["progress%"] ?? r["progress"];
+          const hadProg = rawProg != null && String(rawProg).trim() !== "";
+          let prog = (String(rawProg).trim().toLowerCase()==="done") ? 100 : (parseInt(rawProg,10)||0);
+          const status = normStatus(r["status"], prog);
+          if(!hadProg) prog = status==="Closed" ? 100 : (status==="In progress" ? 50 : 0);
+          if(status==="Closed") prog = 100;
+          if(r["weektheme"] || r["theme"]){ weeks[wk] = weeks[wk]||{};
+            weeks[wk].theme = String(r["weektheme"]||r["theme"]).trim(); }
+          if(!plan.some(x=>x.week===wk && x.wi===wi))
+            plan.push({week:wk, wi, status, progress:Math.max(0,Math.min(100,prog)),
+                       notes: r["notes"] ? String(r["notes"]).trim() : ""});
+        });
+      }
+      if(recName){
+        let rid = Date.now();
+        XLSX.utils.sheet_to_json(wb.Sheets[recName], {defval:null}).forEach(raw=>{
+          const r = keyed(raw);
+          const {wi, name} = resolveWi(r);
+          const date = xlsDate(r["date"]);
+          const hours = parseFloat(r["hours"]);
+          if(!wi || !date || !(hours>0)){ skipped++; return; }
+          const cat = r["category"] ? String(r["category"]).trim() : null;
+          noteItem(wi, name || null, cat);
+          if(cat) cats.add(cat);
+          records.push({ id: rid++, date, wi,
+            task: r["task"] ? String(r["task"]).trim() : "",
+            cat: cat || items[wi].cat,
+            hours, notes: r["notes"] ? String(r["notes"]).trim() : "" });
+        });
+      }
+      const itemArr = Object.values(items).sort((a,b)=>a.wi-b.wi);
+      if(!itemArr.length && !records.length){ toast("Nothing importable found — check the template format"); return; }
+      if(!confirm("Import "+itemArr.length+" work items, "+plan.length+" plan rows, and "+records.length+
+                  " records?\n\nThis REPLACES all current data in the app (your Drive file is updated too)."))
+        return;
+      db = normalize({ seq: (itemArr.length ? Math.max(...itemArr.map(i=>i.wi))+1 : 1),
+        cats: [...cats], items: itemArr, plan, weeks, records });
+      save(); openSheet(false); refreshViews();
+      toast("Imported "+itemArr.length+" items · "+plan.length+" plan rows · "+records.length+" records"+
+            (skipped ? " ("+skipped+" rows skipped)" : ""));
+    }catch(err){
+      console.error("Excel import:", err);
+      toast("Couldn't read that Excel file — is it the import template format?");
+    }
+  };
+  rd.readAsArrayBuffer(f);
+});
 $("importFile").addEventListener("change", e=>{
   const f = e.target.files[0]; if(!f) return;
   const rd = new FileReader();
@@ -1473,6 +1534,31 @@ function queuePush(){
     }catch(e){ syncFail(e); }
   }, 1500);
 }
+
+/* ============ install prompt (Android/desktop one-tap install) ============ */
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e=>{
+  e.preventDefault();
+  deferredInstall = e;
+  $("installBtn").hidden = false;
+});
+$("installBtn").addEventListener("click", async ()=>{
+  if(!deferredInstall) return;
+  deferredInstall.prompt();
+  try{ await deferredInstall.userChoice; }catch(e){}
+  deferredInstall = null;
+  $("installBtn").hidden = true;
+});
+window.addEventListener("appinstalled", ()=>{
+  $("installBtn").hidden = true;
+  toast("Tasks Tracker installed — find it on your home screen");
+});
+
+/* ============ hash routing (app shortcuts: #plan #records #dash) ============ */
+(function(){
+  const h0 = (location.hash||"").replace("#","");
+  if(VIEWNAMES[h0] && h0!=="home") setTimeout(()=>show(h0), 0);
+})();
 
 /* ============ init ============ */
 document.body.classList.toggle("demo", !gUser);
