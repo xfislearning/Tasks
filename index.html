@@ -25,14 +25,15 @@
   --sans:'IBM Plex Sans',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh}
+html{overflow-x:clip}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:clip;max-width:100vw}
 button{font-family:inherit;cursor:pointer}
 input,select,textarea{font-family:inherit;font-size:14px;color:var(--ink)}
 
 /* ===== Top nav ===== */
 .topbar{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top)}
 body{padding-bottom:env(safe-area-inset-bottom)}
-.topbar-in{max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:26px;padding:0 22px;height:58px}
+.topbar-in{max-width:1160px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:0 22px;height:58px;min-width:0;flex-wrap:wrap}
 .brand{font-weight:700;font-size:16px;letter-spacing:.2px;cursor:pointer;white-space:nowrap}
 .brand small{display:block;color:#59C9C2;font-family:var(--mono);font-weight:500;font-size:10px;letter-spacing:.8px}
 .navlinks{display:flex;gap:4px;flex:1}
@@ -254,13 +255,18 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .sbar{flex-basis:100%;height:8px;border-radius:5px;overflow:hidden;display:flex;max-width:460px;background:#EDF1F5}
 .sbar i{display:block;height:100%}
 
-@media (max-width:720px){
-  .topbar-in{padding:0 12px;gap:10px;height:auto;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}
+@media (max-width:860px){
+  .topbar-in{padding:0 12px;gap:8px;height:auto;padding-top:8px;padding-bottom:8px}
   .navlinks{display:none}
-  .mnav{display:block;order:3;width:100%}
+  .mnav{display:block;order:3;width:100%;max-width:100%;flex-basis:100%}
+  .icon-btn{padding:6px 10px;font-size:12px}
+  .userchip b{max-width:100px}
+  .brand{font-size:15px}
+}
+@media (max-width:720px){
   main{padding:16px 12px 50px}
   .launch p{min-height:0}
-  .cal{right:auto;left:50%;transform:translateX(-50%)}
+  .cal{right:auto;left:50%;transform:translateX(-50%);max-width:92vw}
 }
 </style>
 </head>
@@ -1537,17 +1543,29 @@ function queuePush(){
 
 /* ============ install prompt (Android/desktop one-tap install) ============ */
 let deferredInstall = null;
+const isStandalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches)
+                     || window.navigator.standalone === true;
+const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent);
 window.addEventListener("beforeinstallprompt", e=>{
   e.preventDefault();
   deferredInstall = e;
-  $("installBtn").hidden = false;
 });
+/* Always offer Install unless already running as the installed app.
+   Native one-tap where supported; clear instructions everywhere else. */
+if(!isStandalone) $("installBtn").hidden = false;
 $("installBtn").addEventListener("click", async ()=>{
-  if(!deferredInstall) return;
-  deferredInstall.prompt();
-  try{ await deferredInstall.userChoice; }catch(e){}
-  deferredInstall = null;
-  $("installBtn").hidden = true;
+  if(deferredInstall){
+    deferredInstall.prompt();
+    try{ await deferredInstall.userChoice; }catch(e){}
+    deferredInstall = null;
+    $("installBtn").hidden = true;
+    return;
+  }
+  if(isIOS){
+    alert("To install on your iPhone or iPad:\n\n1. Open this page in Safari\n2. Tap the Share button (the square with an up arrow)\n3. Scroll down and tap \u201CAdd to Home Screen\u201D\n4. Tap Add\n\nThe Tasks icon will appear on your home screen.");
+  } else {
+    alert("To install Tasks Tracker:\n\n\u2022 Android (Chrome): menu (\u22EE) \u2192 \u201CAdd to Home screen\u201D / \u201CInstall app\u201D\n\u2022 Desktop Chrome or Edge: click the install icon at the right end of the address bar, or menu \u2192 \u201CInstall Tasks Tracker\u201D\n\u2022 Mac Safari: File \u2192 Add to Dock\n\nAlready installed? Then it\u2019s on your home screen or in your apps \u2014 open it from there.");
+  }
 });
 window.addEventListener("appinstalled", ()=>{
   $("installBtn").hidden = true;
