@@ -150,6 +150,8 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .btn:hover{background:var(--teald)}
 .btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:600}
 .btn.secondary:hover{border-color:var(--teal);color:var(--teald)}
+.btn.danger{background:#c0392b}
+.btn.danger:hover{background:#a5301f}
 .formcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:18px}
 .formcard h2{font-size:14.5px;color:var(--navy);margin-bottom:13px}
 .frow{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:11px}
@@ -494,6 +496,15 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
       <button class="btn" id="addCat">Add</button>
     </div>
     <button class="btn secondary" id="closeCats">Done</button>
+  </div>
+</div>
+<div class="sheet-back" id="importChoiceBack">
+  <div class="dialog" role="dialog" aria-label="Import options">
+    <h2>Import from Excel</h2>
+    <p id="importChoiceSummary"></p>
+    <button class="btn secondary" id="importMergeBtn">Add to existing data</button>
+    <button class="btn danger" id="importReplaceBtn">Replace all existing data</button>
+    <button class="btn secondary" id="importCancelBtn">Cancel</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -1307,20 +1318,69 @@ $("importXlsxFile").addEventListener("change", e=>{
       }
       const itemArr = Object.values(items).sort((a,b)=>a.wi-b.wi);
       if(!itemArr.length && !records.length){ toast("Nothing importable found — check the template format"); return; }
-      if(!confirm("Import "+itemArr.length+" work items, "+plan.length+" plan rows, and "+records.length+
-                  " records?\n\nThis REPLACES all current data in the app (your Drive file is updated too)."))
-        return;
-      db = normalize({ seq: (itemArr.length ? Math.max(...itemArr.map(i=>i.wi))+1 : 1),
-        cats: [...cats], items: itemArr, plan, weeks, records });
-      save(); openSheet(false); refreshViews();
-      toast("Imported "+itemArr.length+" items · "+plan.length+" plan rows · "+records.length+" records"+
-            (skipped ? " ("+skipped+" rows skipped)" : ""));
+      pendingImport = { itemArr, plan, records, weeks, cats: [...cats], skipped };
+      $("importChoiceSummary").textContent =
+        "Found "+itemArr.length+" work items, "+plan.length+" plan rows, and "+records.length+" records"+
+        (skipped ? " ("+skipped+" rows skipped)" : "")+". How should this be added?";
+      $("importChoiceBack").classList.add("open");
     }catch(err){
       console.error("Excel import:", err);
       toast("Couldn't read that Excel file — is it the import template format?");
     }
   };
   rd.readAsArrayBuffer(f);
+});
+let pendingImport = null;
+function closeImportChoice(){ $("importChoiceBack").classList.remove("open"); pendingImport = null; }
+$("importCancelBtn").addEventListener("click", closeImportChoice);
+$("importChoiceBack").addEventListener("click", e=>{ if(e.target===$("importChoiceBack")) closeImportChoice(); });
+$("importReplaceBtn").addEventListener("click", ()=>{
+  if(!pendingImport) return;
+  const { itemArr, plan, records, weeks, cats, skipped } = pendingImport;
+  db = normalize({ seq: (itemArr.length ? Math.max(...itemArr.map(i=>i.wi))+1 : 1),
+    cats, items: itemArr, plan, weeks, records });
+  save(); closeImportChoice(); openSheet(false); refreshViews();
+  toast("Replaced with "+itemArr.length+" items · "+plan.length+" plan rows · "+records.length+" records"+
+        (skipped ? " ("+skipped+" rows skipped)" : ""));
+});
+$("importMergeBtn").addEventListener("click", ()=>{
+  if(!pendingImport) return;
+  const { itemArr, plan, records, weeks, cats, skipped } = pendingImport;
+  const nkey = s => String(s||"").trim().toLowerCase().replace(/\s+/g," ");
+  const existingByName = {};
+  db.items.forEach(it=>{ existingByName[nkey(it.name)] = it.wi; });
+  const wiMap = {};                         /* imported wi -> final wi in db */
+  itemArr.forEach(it=>{
+    const key = nkey(it.name);
+    if(existingByName[key] != null){
+      wiMap[it.wi] = existingByName[key];
+      const ex = db.items.find(x=>x.wi===existingByName[key]);
+      if(ex && ex.cat==="Other" && it.cat && it.cat!=="Other") ex.cat = it.cat;
+    } else {
+      const newWi = db.seq++;
+      db.items.push({ wi:newWi, name:it.name, cat:it.cat||"Other" });
+      existingByName[key] = newWi;
+      wiMap[it.wi] = newWi;
+    }
+  });
+  plan.forEach(p=>{
+    const wi = wiMap[p.wi]; if(!wi) return;
+    const existingRow = db.plan.find(x=>x.week===p.week && x.wi===wi);
+    if(existingRow){ existingRow.status = p.status; existingRow.progress = p.progress; existingRow.notes = p.notes; }
+    else db.plan.push({ week:p.week, wi, status:p.status, progress:p.progress, notes:p.notes });
+  });
+  Object.keys(weeks).forEach(wk=>{
+    if(weeks[wk].theme){ db.weeks[wk] = db.weeks[wk] || {}; db.weeks[wk].theme = weeks[wk].theme; }
+  });
+  let rid = Date.now();
+  records.forEach(r=>{
+    const wi = wiMap[r.wi]; if(!wi) return;
+    db.records.push({ id: rid++, date:r.date, wi, task:r.task, cat:r.cat, hours:r.hours, notes:r.notes });
+  });
+  cats.forEach(c=>{ if(!db.cats.includes(c)) db.cats.push(c); });
+  save(); closeImportChoice(); openSheet(false); refreshViews();
+  toast("Added "+itemArr.length+" items · "+plan.length+" plan rows · "+records.length+" records"+
+        (skipped ? " ("+skipped+" rows skipped)" : ""));
 });
 $("importFile").addEventListener("change", e=>{
   const f = e.target.files[0]; if(!f) return;
