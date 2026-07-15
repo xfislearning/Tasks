@@ -161,6 +161,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .field input,.field select,.field textarea{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff}
 .field textarea{min-height:38px;resize:vertical}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--teal);outline-offset:-1px}
+.hint{font-size:11px;color:var(--teald);margin-top:1px}
 
 /* ===== Dashboard ===== */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
@@ -190,10 +191,13 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 /* ===== Backup dialog ===== */
 .sheet-back{position:fixed;inset:0;background:rgba(14,34,51,.5);z-index:30;display:none}
 .sheet-back.open{display:flex;align-items:center;justify-content:center}
-.dialog{background:#fff;border-radius:14px;padding:24px;width:min(440px,92vw)}
+.dialog{background:#fff;border-radius:14px;padding:24px;width:min(440px,92vw);position:relative}
 .dialog h2{font-size:17px;color:var(--navy);margin-bottom:5px}
 .dialog p{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:16px}
 .dialog .btn{width:100%;margin-bottom:9px}
+.dialog .closeX{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);font-size:18px;line-height:1;padding:6px;border-radius:6px}
+.dialog .closeX:hover{color:var(--red);background:#F7F2F1}
+#catBack .dialog h2{padding-right:26px}
 .tmpl-note{font-size:12px;color:var(--muted);text-align:center;margin-top:2px}
 .tmpl-note a{color:var(--teald);font-weight:600}
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:13px;padding:10px 20px;border-radius:24px;z-index:40;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
@@ -383,10 +387,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
         </div></div>
       <div class="field"><label for="niCat" id="niCatLab">Category</label>
         <select id="niCat"></select>
-        <div class="inline-new" id="catNewWrap" hidden>
-          <input id="catNewIn" placeholder="New category name…" maxlength="24">
-          <button class="xbtn" id="catNewX" title="Back to list" type="button">✕</button>
-        </div></div>
+        <div class="hint" id="catHint" hidden>Changing this updates <span id="catHintWi"></span>'s category.</div></div>
       <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
         <button class="btn" id="addToWeek">Add to week</button></div>
     </div>
@@ -488,6 +489,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 </div>
 <div class="sheet-back" id="catBack">
   <div class="dialog" role="dialog" aria-label="Edit categories">
+    <button class="closeX" id="closeCats" title="Close" type="button">✕</button>
     <h2>Your categories</h2>
     <p>Add categories that fit your work, or remove ones you don't use. If a removed category is already on items, they keep the label.</p>
     <div id="catList"></div>
@@ -495,7 +497,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
       <input id="newCat" placeholder="e.g. Finance" maxlength="24">
       <button class="btn" id="addCat">Add</button>
     </div>
-    <button class="btn secondary" id="closeCats">Done</button>
   </div>
 </div>
 <div class="sheet-back" id="importChoiceBack">
@@ -690,9 +691,6 @@ function renderPlan(){
   $("planLabel").textContent = weekLabel(weekStart);
   $("weekTheme").value = (db.weeks[wISO()]||{}).theme || "";
   $("weekTheme").readOnly = !gUser;
-  $("niCat").innerHTML = db.cats.map(c=>`<option>${esc(c)}</option>`).join("") +
-    `<option value="__new">➕ New category…</option><option value="__edit">✎ Edit categories…</option>`;
-
   const w = wISO();
   const inPlan = new Set(planForWeek(w).map(p=>p.wi));
   const avail = db.items.filter(i=>!inPlan.has(i.wi))
@@ -759,21 +757,22 @@ $("weekTheme").addEventListener("change", ()=>{
 });
 
 /* --- unified add row: item -> category -> add --- */
+let catModalMode = null; // "create" (from "+ Create new category…") or "edit" (from "Edit categories…")
+function renderCatSel(selected){
+  $("niCat").innerHTML = db.cats.map(c=>`<option ${c===selected?"selected":""}>${esc(c)}</option>`).join("") +
+    `<option value="__new">➕ Create new category…</option>`;
+}
 function updateAddRow(){
   const sel = $("itemSel");
   const isNew = sel.value === "__new";
   sel.hidden = isNew; $("itemNew").hidden = !isNew;
-  const catSel = $("niCat");
-  if(!isNew){
-    $("catNewWrap").hidden = true; catSel.hidden = false;
-    const it = item(parseInt(sel.value,10));
-    if(it && db.cats.includes(it.cat)) catSel.value = it.cat;
-    catSel.disabled = !!it;
-    $("niCatLab").textContent = it ? "Category (from item)" : "Category";
-  } else {
-    catSel.disabled = false;
-    $("niCatLab").textContent = "Category";
-  }
+  $("niCatLab").textContent = "Category";
+  const it = isNew ? null : item(parseInt(sel.value,10));
+  renderCatSel(it ? it.cat : null);
+  $("catHint").hidden = !it;
+  if(it) $("catHintWi").textContent = "WI-"+it.wi;
+  /* Category select is never disabled — it's always a working dropdown,
+     even when it's pre-filled from the chosen work item. */
 }
 $("itemSel").addEventListener("change", ()=>{
   updateAddRow();
@@ -785,16 +784,10 @@ $("itemNewX").addEventListener("click", ()=>{
 $("niCat").addEventListener("change", ()=>{
   const v = $("niCat").value;
   if(v==="__new"){
-    $("niCat").hidden = true; $("catNewWrap").hidden = false; $("catNewIn").focus();
-  } else if(v==="__edit"){
-    $("niCat").selectedIndex = 0;
-    if(!requireAuth()) return;
-    renderCatList(); $("catBack").classList.add("open"); $("newCat").focus();
+    catModalMode = "create";
+    if(!requireAuth()){ updateAddRow(); return; }
+    renderCatList(); $("catBack").classList.add("open"); $("newCat").value=""; $("newCat").focus();
   }
-});
-$("catNewX").addEventListener("click", ()=>{
-  $("catNewIn").value=""; $("catNewWrap").hidden = true;
-  $("niCat").hidden = false; $("niCat").selectedIndex = 0;
 });
 $("addToWeek").addEventListener("click", ()=>{
   if(!requireAuth()) return;
@@ -802,27 +795,26 @@ $("addToWeek").addEventListener("click", ()=>{
   if(!creatingItem){
     const wi = parseInt($("itemSel").value,10);
     if(!wi){ toast("Pick a work item, or create a new one"); return; }
+    const it = item(wi);
+    const chosenCat = $("niCat").value;
+    let msg = "WI-"+wi+" added to this week";
+    if(it && chosenCat && chosenCat!=="__new" && chosenCat!=="__edit" && chosenCat!==it.cat){
+      it.cat = chosenCat;
+      msg = "WI-"+wi+" added — category updated to "+chosenCat;
+    }
     db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
-    save(); renderPlan(); toast("WI-"+wi+" added to this week");
+    save(); renderPlan(); toast(msg);
     return;
   }
   const name = $("itemNewIn").value.trim();
   if(!name){ toast("Type the new work item name"); return; }
-  let cat;
-  if(!$("catNewWrap").hidden){
-    cat = $("catNewIn").value.trim();
-    if(!cat){ toast("Type the new category name"); return; }
-    const exist = db.cats.find(x=>x.toLowerCase()===cat.toLowerCase());
-    if(exist) cat = exist; else db.cats.push(cat);
-  } else {
-    cat = $("niCat").value;
-    if(cat==="__new"||cat==="__edit"){ toast("Pick a category"); return; }
-  }
+  const cat = $("niCat").value;
+  if(!cat || cat==="__new" || cat==="__edit"){ toast("Pick a category"); return; }
   const wi = db.seq++;
   db.items.push({wi, name, cat});
   db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
-  $("itemNewIn").value=""; $("catNewIn").value="";
-  $("catNewWrap").hidden = true; $("niCat").hidden = false;
+  $("itemNewIn").value="";
+  $("itemSel").hidden = false; $("itemNew").hidden = true; $("itemSel").selectedIndex = 0;
   save(); renderPlan(); toast("WI-"+wi+" added");
 });
 
@@ -870,14 +862,21 @@ function renderCatList(){
       <button class="rowbtn" data-i="${i}" title="Remove category">✕</button></div>`;
   }).join("") || '<div class="empty">No categories yet — add one below.</div>';
 }
-$("closeCats").addEventListener("click", ()=>{ $("catBack").classList.remove("open"); refreshViews(); });
-$("catBack").addEventListener("click", e=>{ if(e.target===$("catBack")){ $("catBack").classList.remove("open"); refreshViews(); } });
+$("closeCats").addEventListener("click", ()=>{ $("catBack").classList.remove("open"); catModalMode=null; refreshViews(); });
+$("catBack").addEventListener("click", e=>{ if(e.target===$("catBack")){ $("catBack").classList.remove("open"); catModalMode=null; refreshViews(); } });
 $("addCat").addEventListener("click", ()=>{
   const c = $("newCat").value.trim();
   if(!c){ toast("Type a category name"); return; }
   if(db.cats.some(x=>x.toLowerCase()===c.toLowerCase())){ toast("That category already exists"); return; }
   db.cats.push(c); $("newCat").value = "";
-  save(); renderCatList(); toast('"'+c+'" added');
+  save();
+  if(catModalMode==="create"){
+    $("catBack").classList.remove("open"); catModalMode=null;
+    renderCatSel(c);
+    toast(c+" added and selected");
+  } else {
+    renderCatList(); toast(c+" added");
+  }
 });
 $("newCat").addEventListener("keydown", e=>{ if(e.key==="Enter") $("addCat").click(); });
 $("catList").addEventListener("click", e=>{
