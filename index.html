@@ -141,6 +141,11 @@ td .hrs{font-family:var(--mono);font-weight:600;white-space:nowrap}
 .notes-in:focus{outline:none;border-color:var(--teal);background:#fff}
 .rowbtn{background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;padding:3px 5px}
 .rowbtn:hover{color:var(--red)}
+.rowbtns{display:flex;gap:2px}
+tr.edit-row td{background:var(--tsoft)}
+tr.edit-row .frow{margin-bottom:11px}
+tr.edit-row .frow:last-of-type{margin-bottom:12px}
+.edit-actions{display:flex;gap:10px;justify-content:flex-end}
 tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12.5px}
 .empty{color:var(--muted);text-align:center;font-size:13.5px;padding:34px 16px;line-height:1.7}
 
@@ -620,6 +625,7 @@ function weekLabel(mon){ const e=new Date(mon); e.setDate(e.getDate()+6);
 
 let weekStart = mondayOf(new Date());
 let dashMonth = mondayOf(new Date()); dashMonth = new Date(dashMonth.getFullYear(), dashMonth.getMonth(), 1);
+let editingRecId = null;
 
 function wISO(){ return iso(weekStart); }
 function inWeek(dateStr, mon){ const d=fromISO(dateStr);
@@ -972,6 +978,7 @@ function renderRecords(){
     $("recFoot").innerHTML = ""; return;
   }
   body.innerHTML = recs.map(r=>{
+    if(r.id===editingRecId) return editRecRowHtml(r);
     const it = item(r.wi)||{name:"?"};
     return `<tr data-id="${r.id}">
       <td style="white-space:nowrap">${fmtMed(r.date)}</td>
@@ -981,11 +988,49 @@ function renderRecords(){
       <td><span class="chip">${esc(r.cat)}</span></td>
       <td><span class="hrs">${h(r.hours)}</span></td>
       <td style="color:var(--muted);font-size:12.5px">${esc(r.notes)}</td>
-      <td><button class="rowbtn" data-act="del" title="Delete entry">✕</button></td>
+      <td><div class="rowbtns">
+        <button class="rowbtn" data-act="edit" title="Edit entry">✎</button>
+        <button class="rowbtn" data-act="del" title="Delete entry">✕</button>
+      </div></td>
     </tr>`;
   }).join("");
   $("recFoot").innerHTML = `<tr><td colspan="5">Week total · ${recs.length} entries</td>
     <td>${h(recs.reduce((s,r)=>s+r.hours,0))}</td><td colspan="2"></td></tr>`;
+}
+/* ---- inline edit panel for a Work Records row ---- */
+function recPlanStatus(wi, dateStr){
+  const wkey = iso(mondayOf(fromISO(dateStr)));
+  const p = db.plan.find(x=>x.week===wkey && x.wi===wi);
+  const latest = p || db.plan.filter(x=>x.wi===wi).sort((a,b)=>a.week<b.week?1:-1)[0];
+  return { status: latest?latest.status:"In progress", progress: latest?latest.progress:0 };
+}
+function editRecRowHtml(r){
+  const ps = recPlanStatus(r.wi, r.date);
+  const wiOpts = db.items.slice().sort((a,b)=>a.wi-b.wi)
+    .map(i=>`<option value="${i.wi}" ${i.wi===r.wi?"selected":""}>WI-${i.wi} — ${esc(i.name)}</option>`).join("");
+  const catOpts = db.cats.map(c=>`<option ${c===r.cat?"selected":""}>${esc(c)}</option>`).join("");
+  const statusOpts = STATUSES.map(s=>`<option ${s===ps.status?"selected":""}>${s}</option>`).join("");
+  const steps = [0,25,50,75,100];
+  if(!steps.includes(ps.progress)) steps.splice(steps.findIndex(x=>x>ps.progress), 0, ps.progress);
+  const progOpts = steps.map(v=>`<option value="${v}" ${v===ps.progress?"selected":""}>${v}%</option>`).join("");
+  return `<tr class="edit-row" data-id="${r.id}"><td colspan="8">
+    <div class="frow">
+      <div class="field"><label>Date</label><input type="date" class="e-date" value="${r.date}"></div>
+      <div class="field grow2"><label>WI# — Work Item</label><select class="e-wi">${wiOpts}</select></div>
+      <div class="field"><label>Category</label><select class="e-cat">${catOpts}</select></div>
+      <div class="field"><label>Hours</label><input type="number" class="e-hours" min="0" step="0.25" value="${r.hours}"></div>
+      <div class="field"><label>Status after this work</label><select class="e-status">${statusOpts}</select></div>
+      <div class="field"><label>Progress</label><select class="e-prog">${progOpts}</select></div>
+    </div>
+    <div class="frow">
+      <div class="field grow2"><label>Task description</label><textarea class="e-task">${esc(r.task)}</textarea></div>
+      <div class="field grow2"><label>Notes / takeaways</label><textarea class="e-notes">${esc(r.notes)}</textarea></div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn secondary" data-act="cancel">Cancel</button>
+      <button class="btn" data-act="save">Save changes</button>
+    </div>
+  </td></tr>`;
 }
 function syncRecCat(){
   const it = item(parseInt($("rWI").value,10));
@@ -1036,16 +1081,49 @@ $("addRec").addEventListener("click", ()=>{
 });
 
 $("recBody").addEventListener("click", e=>{
-  if(e.target.dataset.act!=="del") return;
-  if(!requireAuth()) return;
-  const id = +e.target.closest("tr").dataset.id;
-  if(!confirm("Delete this entry?")) return;
-  db.records = db.records.filter(r=>r.id!==id);
-  save(); renderRecords();
+  const btn = e.target.closest("[data-act]"); if(!btn) return;
+  const tr = btn.closest("tr");
+  const id = +tr.dataset.id;
+  const act = btn.dataset.act;
+
+  if(act==="edit"){
+    if(!requireAuth()) return;
+    editingRecId = id; renderRecords(); return;
+  }
+  if(act==="cancel"){ editingRecId = null; renderRecords(); return; }
+  if(act==="del"){
+    if(!requireAuth()) return;
+    if(!confirm("Delete this entry?")) return;
+    db.records = db.records.filter(r=>r.id!==id);
+    if(editingRecId===id) editingRecId = null;
+    save(); renderRecords(); return;
+  }
+  if(act==="save"){
+    if(!requireAuth()) return;
+    const wi = parseInt(tr.querySelector(".e-wi").value,10);
+    const hours = parseFloat(tr.querySelector(".e-hours").value);
+    if(!(hours>0)){ toast("Enter hours spent"); return; }
+    const date = tr.querySelector(".e-date").value || iso(new Date());
+    const r = db.records.find(x=>x.id===id);
+    r.date = date; r.wi = wi; r.cat = tr.querySelector(".e-cat").value;
+    r.hours = hours; r.task = tr.querySelector(".e-task").value.trim();
+    r.notes = tr.querySelector(".e-notes").value.trim();
+    /* update (or create) the plan entry for that week with the chosen status */
+    const wkey = iso(mondayOf(fromISO(date)));
+    const st = tr.querySelector(".e-status").value, pg = parseInt(tr.querySelector(".e-prog").value,10)||0;
+    let p = db.plan.find(x=>x.week===wkey && x.wi===wi);
+    if(!p){ p = {week:wkey, wi, status:st, progress:pg, notes:""}; db.plan.push(p); }
+    else { p.status = st; p.progress = pg; }
+    if(p.status==="Closed") p.progress = 100;
+    editingRecId = null;
+    save();
+    if(!inWeek(date, weekStart)) weekStart = mondayOf(fromISO(date));
+    renderRecords(); toast("Entry updated"); return;
+  }
 });
 
-$("recPrev").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()-7); renderRecords(); });
-$("recNext").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()+7); renderRecords(); });
+$("recPrev").addEventListener("click", ()=>{ editingRecId=null; weekStart.setDate(weekStart.getDate()-7); renderRecords(); });
+$("recNext").addEventListener("click", ()=>{ editingRecId=null; weekStart.setDate(weekStart.getDate()+7); renderRecords(); });
 
 /* ============ DASHBOARD ============ */
 function catBars(byCat, max){
@@ -1484,6 +1562,40 @@ function initGIS(){
 }
 window.__gisLoaded = initGIS;
 
+/* ---- auto-reconnect: retries the Google script if it failed to load
+   (common on mobile if opened with a weak/absent connection), and
+   re-attempts sync whenever the phone comes back online or the app
+   is brought back to the foreground. ---- */
+let gisRetries = 0;
+function loadGIS(){
+  if(typeof google!=="undefined" && google.accounts){ initGIS(); return; }
+  if(gisRetries >= 6) return;
+  gisRetries++;
+  const s = document.createElement("script");
+  s.src = "https://accounts.google.com/gsi/client";
+  s.async = true; s.defer = true;
+  s.onload = initGIS;
+  s.onerror = ()=>{ setTimeout(loadGIS, Math.min(3000*gisRetries, 20000)); };
+  document.head.appendChild(s);
+}
+window.__gisRetry = loadGIS;
+function attemptSync(){
+  if(!gUser || !configured()) return;
+  if(typeof google==="undefined" || !google.accounts){ loadGIS(); return; }
+  if(!tokenClient) initGIS();
+  if(!accessToken || Date.now()>=tokenExp){
+    setSync("sync","Connecting…");
+    try{ tokenClient.requestAccessToken({prompt:""}); }
+    catch(e){ setSync("err","Sync paused"); }
+  } else {
+    driveSync().catch(syncFail);
+  }
+}
+window.addEventListener("online", attemptSync);
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState==="visible") attemptSync();
+});
+
 (function(){
   const w = $("starterWarn");
   w.addEventListener("click", e=>{ w.classList.toggle("open"); e.stopPropagation(); });
@@ -1644,6 +1756,6 @@ renderHome();
 if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 })();
 </script>
-<script src="https://accounts.google.com/gsi/client" async defer onload="window.__gisLoaded&&window.__gisLoaded()"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="window.__gisLoaded&&window.__gisLoaded()" onerror="window.__gisRetry&&window.__gisRetry()"></script>
 </body>
 </html>

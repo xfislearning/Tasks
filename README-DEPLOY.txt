@@ -1,5 +1,19 @@
-TASKS TRACKER — DEPLOYMENT PACKAGE (R13 mobile build, latest)
+TASKS TRACKER — DEPLOYMENT PACKAGE (R15 mobile build, latest)
 =============================================================
+
+R15: Editable Work Records. Each logged entry in Work Records now has
+an ✎ Edit button next to the ✕ delete button. Clicking it expands that
+row in place into an editable panel — date, work item, category, hours,
+status, progress, task description, and notes — with Save changes /
+Cancel buttons. No more delete-and-redo to fix a typo or wrong hours.
+
+R14: Auto-reconnect sync. Previously, if the app opened without a solid
+connection (common on mobile), Google sign-in would silently fail to
+re-authenticate and the app would stay in local-only mode until you
+manually signed out and back in. Now it automatically retries getting
+a fresh Google session — and syncs with Drive — whenever your phone
+reconnects to the network or you switch back into the app. No manual
+sign-out needed anymore.
 
 FILES (all six app files go in the TOP LEVEL of your GitHub "Tasks" repo):
 
@@ -12,7 +26,7 @@ FILES (all six app files go in the TOP LEVEL of your GitHub "Tasks" repo):
                   routing (#plan/#records/#dash); mobile header overflow fix
                   (nav collapses at <=860px, page-level horizontal clip).
   manifest.json   PWA config with app shortcuts (long-press the icon).
-  sw.js           Service worker, cache v4 (offline + instant updates).
+  sw.js           Service worker, cache v7 (offline + instant updates).
   icon-192.png / icon-512.png
   Tasks-Tracker-Import-Template.xlsx  (keep this exact filename — the app's
                   "Download the import template" link points to it. R13:
