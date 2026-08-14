@@ -141,6 +141,9 @@ td .hrs{font-family:var(--mono);font-weight:600;white-space:nowrap}
 .notes-in:focus{outline:none;border-color:var(--teal);background:#fff}
 .rowbtn{background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;padding:3px 5px}
 .rowbtn:hover{color:var(--red)}
+.rowbtn.edit:hover{color:var(--teald)}
+.editrow td{padding:6px 8px}
+.editrow input,.editrow select{width:100%;border:1px solid var(--teal);border-radius:6px;padding:6px 7px;font-size:12.5px;font-family:inherit;background:#fff}
 tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12.5px}
 .empty{color:var(--muted);text-align:center;font-size:13.5px;padding:34px 16px;line-height:1.7}
 
@@ -162,6 +165,8 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .field textarea{min-height:38px;resize:vertical}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--teal);outline-offset:-1px}
 .hint{font-size:11px;color:var(--teald);margin-top:1px}
+.hint.pending{background:var(--tsoft);border-radius:6px;padding:6px 9px;display:flex;align-items:center;gap:8px;font-size:12px}
+.hint.pending a{color:var(--red);text-decoration:none;font-weight:600;font-size:11px}
 
 /* ===== Dashboard ===== */
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
@@ -381,10 +386,9 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
     <div class="frow">
       <div class="field grow2"><label for="itemSel">Work item</label>
         <select id="itemSel"></select>
-        <div class="inline-new" id="itemNew" hidden>
-          <input id="itemNewIn" placeholder="Type the new work item name…" maxlength="80">
-          <button class="xbtn" id="itemNewX" title="Back to list" type="button">✕</button>
-        </div></div>
+        <div class="hint pending" id="itemPending" hidden>New item: <b id="itemPendingName"></b> <a href="#" id="itemPendingCancel">cancel</a></div>
+        <div class="hint" id="itemStaticHint">Don't see the item you need? Choose <b>➕ Create new work item…</b> above and enter its name.</div>
+      </div>
       <div class="field"><label for="niCat" id="niCatLab">Category</label>
         <select id="niCat"></select>
         <div class="hint" id="catHint" hidden>Changing this updates <span id="catHintWi"></span>'s category.</div></div>
@@ -695,6 +699,8 @@ function renderPlan(){
   const inPlan = new Set(planForWeek(w).map(p=>p.wi));
   const avail = db.items.filter(i=>!inPlan.has(i.wi))
     .sort((a,b)=>a.wi-b.wi);
+  pendingNewName = null;
+  $("itemPending").hidden = true; $("itemStaticHint").hidden = false;
   $("itemSel").innerHTML =
     avail.map(i=>`<option value="${i.wi}">WI-${i.wi} — ${esc(i.name)}</option>`).join("") +
     `<option value="__new">➕ Create new work item…</option>`;
@@ -758,28 +764,48 @@ $("weekTheme").addEventListener("change", ()=>{
 
 /* --- unified add row: item -> category -> add --- */
 let catModalMode = null; // "create" (from "+ Create new category…") or "edit" (from "Edit categories…")
+let pendingNewName = null; // set while the user is mid-creating a new work item via the ➕ prompt
 function renderCatSel(selected){
   $("niCat").innerHTML = db.cats.map(c=>`<option ${c===selected?"selected":""}>${esc(c)}</option>`).join("") +
     `<option value="__new">➕ Create new category…</option>`;
 }
 function updateAddRow(){
   const sel = $("itemSel");
-  const isNew = sel.value === "__new";
-  sel.hidden = isNew; $("itemNew").hidden = !isNew;
   $("niCatLab").textContent = "Category";
-  const it = isNew ? null : item(parseInt(sel.value,10));
+  const it = pendingNewName ? null : item(parseInt(sel.value,10));
   renderCatSel(it ? it.cat : null);
   $("catHint").hidden = !it;
   if(it) $("catHintWi").textContent = "WI-"+it.wi;
   /* Category select is never disabled — it's always a working dropdown,
      even when it's pre-filled from the chosen work item. */
 }
+function resetToFirstRealItem(){
+  const opts = [...$("itemSel").options];
+  const firstReal = opts.find(o=>o.value!=="__new");
+  $("itemSel").value = firstReal ? firstReal.value : "__new";
+}
 $("itemSel").addEventListener("change", ()=>{
+  if($("itemSel").value === "__new"){
+    const name = prompt("Name for the new work item:");
+    if(!name || !name.trim()){ resetToFirstRealItem(); updateAddRow(); return; }
+    pendingNewName = name.trim().slice(0,80);
+    $("itemPendingName").textContent = pendingNewName;
+    $("itemPending").hidden = false;
+    $("itemStaticHint").hidden = true;
+  } else {
+    pendingNewName = null;
+    $("itemPending").hidden = true;
+    $("itemStaticHint").hidden = false;
+  }
   updateAddRow();
-  if($("itemSel").value==="__new") $("itemNewIn").focus();
 });
-$("itemNewX").addEventListener("click", ()=>{
-  $("itemNewIn").value=""; $("itemSel").selectedIndex = 0; updateAddRow();
+$("itemPendingCancel").addEventListener("click", e=>{
+  e.preventDefault();
+  pendingNewName = null;
+  $("itemPending").hidden = true;
+  $("itemStaticHint").hidden = false;
+  resetToFirstRealItem();
+  updateAddRow();
 });
 $("niCat").addEventListener("change", ()=>{
   const v = $("niCat").value;
@@ -791,31 +817,29 @@ $("niCat").addEventListener("change", ()=>{
 });
 $("addToWeek").addEventListener("click", ()=>{
   if(!requireAuth()) return;
-  const creatingItem = $("itemSel").hidden;
-  if(!creatingItem){
-    const wi = parseInt($("itemSel").value,10);
-    if(!wi){ toast("Pick a work item, or create a new one"); return; }
-    const it = item(wi);
-    const chosenCat = $("niCat").value;
-    let msg = "WI-"+wi+" added to this week";
-    if(it && chosenCat && chosenCat!=="__new" && chosenCat!=="__edit" && chosenCat!==it.cat){
-      it.cat = chosenCat;
-      msg = "WI-"+wi+" added — category updated to "+chosenCat;
-    }
+  if(pendingNewName){
+    const cat = $("niCat").value;
+    if(!cat || cat==="__new" || cat==="__edit"){ toast("Pick a category"); return; }
+    const wi = db.seq++;
+    const addedName = pendingNewName;
+    db.items.push({wi, name:addedName, cat});
     db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
-    save(); renderPlan(); toast(msg);
+    pendingNewName = null;
+    $("itemPending").hidden = true; $("itemStaticHint").hidden = false;
+    save(); renderPlan(); toast("WI-"+wi+" \u201c"+addedName+"\u201d added");
     return;
   }
-  const name = $("itemNewIn").value.trim();
-  if(!name){ toast("Type the new work item name"); return; }
-  const cat = $("niCat").value;
-  if(!cat || cat==="__new" || cat==="__edit"){ toast("Pick a category"); return; }
-  const wi = db.seq++;
-  db.items.push({wi, name, cat});
+  const wi = parseInt($("itemSel").value,10);
+  if(!wi){ toast("Pick a work item, or create a new one"); return; }
+  const it = item(wi);
+  const chosenCat = $("niCat").value;
+  let msg = "WI-"+wi+" added to this week";
+  if(it && chosenCat && chosenCat!=="__new" && chosenCat!=="__edit" && chosenCat!==it.cat){
+    it.cat = chosenCat;
+    msg = "WI-"+wi+" added — category updated to "+chosenCat;
+  }
   db.plan.push({week:wISO(), wi, status:"Not started", progress:0, notes:""});
-  $("itemNewIn").value="";
-  $("itemSel").hidden = false; $("itemNew").hidden = true; $("itemSel").selectedIndex = 0;
-  save(); renderPlan(); toast("WI-"+wi+" added");
+  save(); renderPlan(); toast(msg);
 });
 
 $("carryBtn").addEventListener("click", ()=>{
@@ -945,6 +969,45 @@ document.addEventListener("click", e=>{
 });
 
 /* ============ WORK RECORDS ============ */
+let editingRecId = null; // id of the Work Records row currently expanded for editing
+function recWiOptionsHtml(selectedWi){
+  return [...db.items].sort((a,b)=>a.wi-b.wi)
+    .map(i=>`<option value="${i.wi}" ${i.wi===selectedWi?"selected":""}>WI-${i.wi} — ${esc(i.name)}</option>`).join("");
+}
+function recCatOptionsHtml(selected){
+  return db.cats.map(c=>`<option ${c===selected?"selected":""}>${esc(c)}</option>`).join("");
+}
+function recStaticRowHtml(r){
+  const it = item(r.wi)||{name:"?"};
+  return `<tr data-id="${r.id}">
+    <td style="white-space:nowrap">${fmtMed(r.date)}</td>
+    <td><span class="wi-tag">WI-${r.wi}</span></td>
+    <td>${esc(it.name)}</td>
+    <td>${esc(r.task)}</td>
+    <td><span class="chip">${esc(r.cat)}</span></td>
+    <td><span class="hrs">${h(r.hours)}</span></td>
+    <td style="color:var(--muted);font-size:12.5px">${esc(r.notes)}</td>
+    <td style="white-space:nowrap">
+      <button class="rowbtn edit" data-act="edit" title="Edit entry">✎</button>
+      <button class="rowbtn" data-act="del" title="Delete entry">✕</button>
+    </td>
+  </tr>`;
+}
+function recEditRowHtml(r){
+  return `<tr class="editrow" data-id="${r.id}">
+    <td><input type="date" id="edDate" value="${r.date}"></td>
+    <td><span class="wi-tag" id="edWiTag">WI-${r.wi}</span></td>
+    <td><select id="edWi">${recWiOptionsHtml(r.wi)}</select></td>
+    <td><input type="text" id="edTask" value="${esc(r.task)}"></td>
+    <td><select id="edCat">${recCatOptionsHtml(r.cat)}</select></td>
+    <td><input type="number" step="0.25" min="0" id="edHours" value="${r.hours}"></td>
+    <td><input type="text" id="edNotes" value="${esc(r.notes)}"></td>
+    <td style="white-space:nowrap">
+      <button class="rowbtn edit" data-act="save" title="Save changes">✓</button>
+      <button class="rowbtn" data-act="cancel" title="Cancel">✕</button>
+    </td>
+  </tr>`;
+}
 function renderRecords(){
   $("recLabel").textContent = weekLabel(weekStart);
   if(!$("rDate").value) $("rDate").value = iso(new Date());
@@ -971,19 +1034,7 @@ function renderRecords(){
     body.innerHTML = `<tr><td colspan="8"><div class="empty">Nothing logged for this week.<br>Entries you save appear here, newest first.</div></td></tr>`;
     $("recFoot").innerHTML = ""; return;
   }
-  body.innerHTML = recs.map(r=>{
-    const it = item(r.wi)||{name:"?"};
-    return `<tr data-id="${r.id}">
-      <td style="white-space:nowrap">${fmtMed(r.date)}</td>
-      <td><span class="wi-tag">WI-${r.wi}</span></td>
-      <td>${esc(it.name)}</td>
-      <td>${esc(r.task)}</td>
-      <td><span class="chip">${esc(r.cat)}</span></td>
-      <td><span class="hrs">${h(r.hours)}</span></td>
-      <td style="color:var(--muted);font-size:12.5px">${esc(r.notes)}</td>
-      <td><button class="rowbtn" data-act="del" title="Delete entry">✕</button></td>
-    </tr>`;
-  }).join("");
+  body.innerHTML = recs.map(r=> editingRecId===r.id ? recEditRowHtml(r) : recStaticRowHtml(r)).join("");
   $("recFoot").innerHTML = `<tr><td colspan="5">Week total · ${recs.length} entries</td>
     <td>${h(recs.reduce((s,r)=>s+r.hours,0))}</td><td colspan="2"></td></tr>`;
 }
@@ -1036,16 +1087,49 @@ $("addRec").addEventListener("click", ()=>{
 });
 
 $("recBody").addEventListener("click", e=>{
-  if(e.target.dataset.act!=="del") return;
-  if(!requireAuth()) return;
-  const id = +e.target.closest("tr").dataset.id;
-  if(!confirm("Delete this entry?")) return;
-  db.records = db.records.filter(r=>r.id!==id);
-  save(); renderRecords();
+  const btn = e.target.closest("button"); if(!btn) return;
+  const act = btn.dataset.act;
+  const id = +btn.closest("tr").dataset.id;
+  if(act==="del"){
+    if(!requireAuth()) return;
+    if(!confirm("Delete this entry?")) return;
+    db.records = db.records.filter(r=>r.id!==id);
+    if(editingRecId===id) editingRecId = null;
+    save(); renderRecords();
+  } else if(act==="edit"){
+    if(!requireAuth()) return;
+    editingRecId = id;
+    renderRecords();
+  } else if(act==="cancel"){
+    editingRecId = null;
+    renderRecords();
+  } else if(act==="save"){
+    if(!requireAuth()) return;
+    const r = db.records.find(x=>x.id===id);
+    if(!r) return;
+    const wi = parseInt($("edWi").value,10);
+    const hours = parseFloat($("edHours").value);
+    if(!wi){ toast("Pick a work item"); return; }
+    if(!(hours>0)){ toast("Enter hours spent"); return; }
+    const date = $("edDate").value || r.date;
+    r.date = date; r.wi = wi; r.task = $("edTask").value.trim();
+    r.cat = $("edCat").value; r.hours = hours; r.notes = $("edNotes").value.trim();
+    editingRecId = null;
+    save();
+    if(!inWeek(date, weekStart)) weekStart = mondayOf(fromISO(date));
+    renderRecords(); toast("Entry updated");
+  }
+});
+/* keep the WI# tag in sync with the work item picker while editing */
+$("recBody").addEventListener("change", e=>{
+  if(e.target.id!=="edWi") return;
+  const it = item(parseInt(e.target.value,10));
+  $("edWiTag").textContent = "WI-"+e.target.value;
+  if(it && db.cats.includes(it.cat)) $("edCat").value = it.cat;
 });
 
-$("recPrev").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()-7); renderRecords(); });
-$("recNext").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()+7); renderRecords(); });
+$("recPrev").addEventListener("click", ()=>{ editingRecId=null; weekStart.setDate(weekStart.getDate()-7); renderRecords(); });
+$("recNext").addEventListener("click", ()=>{ editingRecId=null; weekStart.setDate(weekStart.getDate()+7); renderRecords(); });
 
 /* ============ DASHBOARD ============ */
 function catBars(byCat, max){
