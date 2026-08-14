@@ -1,26 +1,22 @@
-TASKS TRACKER — DEPLOYMENT PACKAGE (R16, latest)
+TASKS TRACKER — DEPLOYMENT PACKAGE (R16.1, latest)
 =============================================================
 
 FILES (all six app files go in the TOP LEVEL of your GitHub "Tasks" repo):
 
-  index.html      The entire app. R16 changes:
-                  1) Plan To-Do "Add work item": the inline "Type the new
-                     work item name…" box is gone. Choosing "➕ Create new
-                     work item…" now prompts for the name directly, shows
-                     a small "New item: X · cancel" confirmation, and a
-                     static instruction line explains how to add one when
-                     you're not mid-creation.
-                  2) Work Records: every row now has an ✎ Edit button next
-                     to delete. Edit expands the row into editable fields
-                     for date, work item, task, category, hours, and notes
-                     — Save commits all of it, Cancel discards. Week
-                     navigation closes any open edit row.
-                  Google Drive sync is UNCHANGED from the previous
-                  release — still a single file at the root of the
-                  user's Drive (no "Tasks" folder). No work-item rename
-                  feature included in this build.
+  index.html      R16.1: fixes a CSS bug from R16 where the "New item:
+                  ... cancel" hint under the work-item dropdown was
+                  permanently visible (even with no name filled in),
+                  regardless of whether you were actually creating a new
+                  item. Cause: the hint's CSS set "display:flex" directly,
+                  which overrides the browser's built-in rule for hiding
+                  elements marked hidden. Fixed by scoping that rule to
+                  :not([hidden]). Also tightened the static instruction
+                  wording to "To add a new item, choose ➕ Create new work
+                  item… from the dropdown above." No other logic changed
+                  from R16: Drive sync is still a single file at Drive
+                  root (no folder), no rename feature.
   manifest.json   PWA config with app shortcuts (long-press the icon).
-  sw.js           Service worker, cache v8 (offline + instant updates).
+  sw.js           Service worker, cache v9 (offline + instant updates).
   icon-192.png / icon-512.png
   Tasks-Tracker-Import-Template.xlsx  (keep this exact filename — the app's
                   "Download the import template" link points to it.)
@@ -32,11 +28,8 @@ DEPLOY (2 minutes):
      open in an incognito window.
 
 VERIFY AFTER DEPLOY:
-  - Plan To-Do: pick "➕ Create new work item…" from the Work item
-    dropdown -> a name prompt appears -> confirm -> "New item: ..." hint
-    shows above the dropdown -> pick a category -> Add to week.
-  - Work Records: click the pencil on any row -> all six fields become
-    editable -> Save updates the row -> Cancel discards changes ->
-    changing weeks closes any row left open for editing.
-  - View page source -> search "edWiTag" (confirms the latest build is
-    live).
+  - Plan To-Do: with an existing item selected, the "New item..." hint
+    should NOT be visible — only the category hint (if applicable) and/or
+    the static "To add a new item..." instruction should show.
+  - Pick "➕ Create new work item…" -> confirm the name prompt -> now ONLY
+    the "New item: <name> · cancel" hint shows, nothing else.

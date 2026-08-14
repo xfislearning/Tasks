@@ -165,7 +165,8 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .field textarea{min-height:38px;resize:vertical}
 .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--teal);outline-offset:-1px}
 .hint{font-size:11px;color:var(--teald);margin-top:1px}
-.hint.pending{background:var(--tsoft);border-radius:6px;padding:6px 9px;display:flex;align-items:center;gap:8px;font-size:12px}
+.hint.pending{background:var(--tsoft);border-radius:6px;padding:6px 9px;gap:8px;font-size:12px}
+.hint.pending:not([hidden]){display:flex;align-items:center}
 .hint.pending a{color:var(--red);text-decoration:none;font-weight:600;font-size:11px}
 
 /* ===== Dashboard ===== */
@@ -244,10 +245,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .cal .cal-tip{font-size:10.5px;color:var(--muted);margin-top:8px;text-align:center}
 
 /* ===== Inline create-new in dropdowns ===== */
-.inline-new{display:flex;gap:6px;align-items:center}
-.inline-new input{flex:1;border:1px solid var(--teal);border-radius:8px;padding:9px 10px;background:#fff}
-.xbtn{background:none;border:none;color:var(--muted);font-size:15px;cursor:pointer;padding:4px 6px}
-.xbtn:hover{color:var(--red)}
 
 /* ===== Status chips & aggregate bar ===== */
 .status-sel{border-radius:16px;padding:4px 10px;font-weight:700;border-width:1.5px;border-style:solid;cursor:pointer}
@@ -387,7 +384,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
       <div class="field grow2"><label for="itemSel">Work item</label>
         <select id="itemSel"></select>
         <div class="hint pending" id="itemPending" hidden>New item: <b id="itemPendingName"></b> <a href="#" id="itemPendingCancel">cancel</a></div>
-        <div class="hint" id="itemStaticHint">Don't see the item you need? Choose <b>➕ Create new work item…</b> above and enter its name.</div>
+        <div class="hint" id="itemStaticHint">To add a new item, choose <b>➕ Create new work item…</b> from the dropdown above.</div>
       </div>
       <div class="field"><label for="niCat" id="niCatLab">Category</label>
         <select id="niCat"></select>
