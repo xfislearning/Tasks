@@ -22,9 +22,20 @@
   ],
   "shortcuts": [
     {
-      "name": "Plan To-Do",
+      "name": "Plan for the Week",
       "short_name": "Plan",
       "url": "./#plan",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Work Plan Ahead",
+      "short_name": "Ahead",
+      "url": "./#ahead",
       "icons": [
         {
           "src": "icon-192.png",
