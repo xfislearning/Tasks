@@ -16,7 +16,7 @@ FILES (all six app files go in the TOP LEVEL of your GitHub "Tasks" repo):
                   from R16: Drive sync is still a single file at Drive
                   root (no folder), no rename feature.
   manifest.json   PWA config with app shortcuts (long-press the icon).
-  sw.js           Service worker, cache v9 (offline + instant updates).
+  sw.js           Service worker, cache v10 (offline + instant updates).
   icon-192.png / icon-512.png
   Tasks-Tracker-Import-Template.xlsx  (keep this exact filename — the app's
                   "Download the import template" link points to it.)
