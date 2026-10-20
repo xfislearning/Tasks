@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="google-site-verification" content="z8kf5hb3SzhA8y_tAWdYjUkpW4sT-Co6wbUt1UoxSZU" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E2233">
@@ -110,6 +109,14 @@ body.demo .formcard .frow,body.demo .formcard > .btn{display:none}
 .cat-add input{flex:1;border:1px solid var(--line);border-radius:8px;padding:9px 10px}
 .cat-add input:focus{outline:2px solid var(--teal);outline-offset:-1px}
 .cat-add .btn{width:auto}
+.catrow .cname{flex:1;min-width:0}
+.catrow .acts{display:flex;gap:2px;white-space:nowrap}
+.catrow.editing{gap:4px}
+.catrow.editing input{flex:1;min-width:0;border:1px solid var(--teal);border-radius:7px;padding:6px 8px;font-size:13.5px;margin-right:4px}
+.catrow .mini{background:var(--teal);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700}
+.catrow .mini.ghost{background:none;color:var(--muted)}
+.merge-note{font-size:11.5px;color:#996E1A;background:#FBF3E2;border-radius:6px;padding:6px 9px;margin:6px 0 2px}
+#catList{max-height:52vh;overflow-y:auto}
 
 /* ===== Shared: week/month nav ===== */
 .viewhead{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
@@ -264,40 +271,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
 .sbar{flex-basis:100%;height:8px;border-radius:5px;overflow:hidden;display:flex;max-width:460px;background:#EDF1F5}
 .sbar i{display:block;height:100%}
 
-/* ===== Fuzzy-search combobox (category / work item / project / customer) ===== */
-.combo{position:relative}
-.combo input.combo-in{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:#fff}
-.combo input.combo-in:focus{outline:2px solid var(--teal);outline-offset:-1px}
-.combo-list{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 28px rgba(14,34,51,.18);z-index:27;max-height:240px;overflow-y:auto;padding:5px;margin:0}
-.combo-list.open{display:block}
-.combo-list li{list-style:none;padding:8px 10px;border-radius:7px;font-size:13px;cursor:pointer}
-.combo-list li:hover,.combo-list li.active{background:var(--tsoft);color:var(--teald)}
-.combo-list li.create{color:var(--teald);font-weight:600;border-top:1px solid var(--line);margin-top:4px;padding-top:9px}
-.combo-list li.empty{color:var(--muted);cursor:default}
-.combo-list li.empty:hover{background:none;color:var(--muted)}
-.combo-list mark{background:#FBF3E2;color:var(--ink);border-radius:2px;padding:0 1px}
-
-/* ===== Work Plan Ahead / Random To-Do shared bits ===== */
-.dt-in{display:flex;gap:6px;flex-wrap:wrap}
-.dt-in input[type=date]{flex:1;min-width:126px}
-.dt-in input[type=time]{width:104px}
-.wpa-when{font-family:var(--mono);font-size:11.5px;color:var(--muted);line-height:1.6}
-.wpa-loc{font-size:12.5px;color:var(--muted)}
-.wpa-rem{font-size:11px;font-family:var(--mono);color:var(--teald);background:var(--tsoft);border-radius:5px;padding:2px 7px;white-space:nowrap}
-.wpa-syncing{color:var(--amber)}
-.wpa-synced:before{content:"✓ ";color:var(--green)}
-.todo-when{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.todo-open{background:none;border:1px dashed var(--line);border-radius:8px;color:var(--teald);font-weight:600;font-size:12.5px;padding:5px 10px}
-.todo-open:hover{border-color:var(--teal);background:var(--tsoft)}
-
-/* ===== Day / range calendar picker (Work Plan Ahead + Random To-Do) ===== */
-.daycal td.pick{cursor:pointer;border-radius:8px}
-.daycal td.pick:hover{background:var(--tsoft)}
-.daycal td.sel{background:var(--teal);color:#fff;border-radius:8px}
-.daycal td.inrange{background:var(--tsoft)}
-.daycal td.today{box-shadow:inset 0 0 0 1.5px var(--teal);border-radius:8px}
-.combo-list.daycal{width:286px;padding:12px}
-
 @media (max-width:860px){
   .topbar-in{padding:0 12px;gap:8px;height:auto;padding-top:8px;padding-bottom:8px}
   .navlinks{display:none}
@@ -320,8 +293,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
   <div class="navlinks">
     <button data-nav="home" class="active">Home</button>
     <button data-nav="plan">Plan for the Week</button>
-    <button data-nav="ahead">Work Plan Ahead</button>
-    <button data-nav="todo">Random To-Do</button>
     <button data-nav="records">Work Records</button>
     <button data-nav="dash">Dashboard</button>
   </div>
@@ -330,8 +301,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
     <div class="mnav-menu" id="mnavMenu">
       <button data-nav="home" class="cur">Home</button>
       <button data-nav="plan">Plan for the Week</button>
-      <button data-nav="ahead">Work Plan Ahead</button>
-      <button data-nav="todo">Random To-Do</button>
       <button data-nav="records">Work Records</button>
       <button data-nav="dash">Dashboard</button>
     </div>
@@ -386,18 +355,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
       <h2>Plan for the Week</h2>
       <p>Set this week's work items with WI#, category, progress and status — carry open items forward.</p>
       <span class="stat" id="statPlan"></span>
-    </button>
-    <button class="launch" data-nav="ahead">
-      <span class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="M8 15l2 2 4-4"/></svg></span>
-      <h2>Work Plan Ahead</h2>
-      <p>Trips, site visits and meetings with a real date — auto-synced to your Google Calendar with a reminder.</p>
-      <span class="stat" id="statAhead"></span>
-    </button>
-    <button class="launch" data-nav="todo">
-      <span class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
-      <h2>Random To-Do</h2>
-      <p>Jot things down as they come to mind. Give one a date later and it quietly lands on that week's plan.</p>
-      <span class="stat" id="statTodo"></span>
     </button>
     <button class="launch" data-nav="records">
       <span class="glyph"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
@@ -461,102 +418,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
   </table></div>
 </section>
 
-<!-- ================= WORK PLAN AHEAD ================= -->
-<section class="view" id="view-ahead">
-  <div class="viewhead">
-    <h1>Work Plan Ahead</h1>
-  </div>
-
-  <div class="formcard">
-    <h2 id="aheadFormTitle">Add a planned work item</h2>
-    <div class="lockbar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>Sign in with Google to plan ahead and sync to your Calendar</span><button class="btn" data-locksignin>Sign in</button></div>
-    <div class="frow">
-      <div class="field grow2"><label for="aItem">Work item</label>
-        <input type="text" id="aItem" placeholder="e.g. Bring up data center for client"></div>
-      <div class="field"><label for="aCatIn">Category</label>
-        <div class="combo" id="aCatCombo"><input type="text" class="combo-in" id="aCatIn" autocomplete="off" placeholder="Search or add…"><ul class="combo-list" id="aCatList"></ul></div>
-      </div>
-    </div>
-    <div class="frow">
-      <div class="field"><label for="aProjIn">Project name <span style="text-transform:none;font-weight:400">(optional)</span></label>
-        <div class="combo" id="aProjCombo"><input type="text" class="combo-in" id="aProjIn" autocomplete="off" placeholder="e.g. Q4 GPU rollout"><ul class="combo-list" id="aProjList"></ul></div>
-      </div>
-      <div class="field"><label for="aCustIn">Customer name <span style="text-transform:none;font-weight:400">(optional)</span></label>
-        <div class="combo" id="aCustCombo"><input type="text" class="combo-in" id="aCustIn" autocomplete="off" placeholder="e.g. Acme Corp"><ul class="combo-list" id="aCustList"></ul></div>
-      </div>
-    </div>
-    <div class="frow">
-      <div class="field"><label for="aStartDate">Start</label>
-        <div class="dt-in">
-          <div class="combo"><input type="text" class="combo-in" id="aStartDate" readonly autocomplete="off" placeholder="Pick a date"><div class="combo-list daycal" id="aStartCal"></div></div>
-          <input type="time" id="aStartTime">
-        </div>
-      </div>
-      <div class="field"><label for="aEndDate">End <span style="text-transform:none;font-weight:400">(optional)</span></label>
-        <div class="dt-in">
-          <div class="combo"><input type="text" class="combo-in" id="aEndDate" readonly autocomplete="off" placeholder="Same as start"><div class="combo-list daycal" id="aEndCal"></div></div>
-          <input type="time" id="aEndTime">
-        </div>
-      </div>
-    </div>
-    <div class="frow">
-      <div class="field grow2"><label for="aLoc">Location <span style="text-transform:none;font-weight:400">(optional)</span></label>
-        <input type="text" id="aLoc" placeholder="Address, site name, or “Online”"></div>
-      <div class="field"><label for="aRem">Reminder</label>
-        <select id="aRem">
-          <option value="">No reminder</option>
-          <option value="15">15 minutes before</option>
-          <option value="60">1 hour before</option>
-          <option value="180">3 hours before</option>
-          <option value="1440" selected>1 day before</option>
-          <option value="4320">3 days before</option>
-          <option value="10080">1 week before</option>
-        </select>
-      </div>
-      <div class="field" style="flex:0;justify-content:flex-end;gap:9px;flex-direction:row;align-items:center">
-        <a href="#" id="aheadCancelEdit" hidden style="font-size:12px;color:var(--muted);font-weight:600">Cancel edit</a>
-        <button class="btn" id="addAhead">Add to plan ahead</button>
-      </div>
-    </div>
-    <div class="hint" id="aheadCalHint">Once you're signed in and this item has a start date, it syncs to your Google Calendar automatically — Calendar handles the reminder from there.</div>
-  </div>
-
-  <div class="tbl-wrap"><table id="aheadTable">
-    <thead><tr>
-      <th style="min-width:190px">Work Item</th><th>Category</th><th style="min-width:150px">Project / Customer</th>
-      <th style="min-width:160px">When</th><th style="min-width:120px">Location</th><th>Reminder</th><th>Calendar</th><th></th>
-    </tr></thead>
-    <tbody id="aheadBody"></tbody>
-  </table></div>
-</section>
-
-<!-- ================= RANDOM TO-DO LIST ================= -->
-<section class="view" id="view-todo">
-  <div class="viewhead">
-    <h1>Random To-Do List</h1>
-  </div>
-
-  <div class="formcard">
-    <h2>Add a random to-do</h2>
-    <div class="lockbar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><span>Sign in with Google to keep your own to-do list</span><button class="btn" data-locksignin>Sign in</button></div>
-    <div class="frow">
-      <div class="field grow2"><label for="tItem">To-do item</label>
-        <input type="text" id="tItem" placeholder="e.g. Renew business license"></div>
-      <div class="field"><label for="tWhenIn">When <span style="text-transform:none;font-weight:400">(optional)</span></label>
-        <div class="combo"><input type="text" class="combo-in" id="tWhenIn" readonly autocomplete="off" placeholder="No date — anytime"><div class="combo-list daycal" id="tWhenCal"></div></div>
-      </div>
-      <div class="field" style="flex:0;justify-content:flex-end"><label>&nbsp;</label>
-        <button class="btn" id="addTodo">Add</button></div>
-    </div>
-    <div class="hint">Click a day for a single date, or click a second day to pick a range. Give an item a date — now or later, from the list below — and it's quietly placed on that week's Plan for the Week, once you choose a category.</div>
-  </div>
-
-  <div class="tbl-wrap"><table id="todoTable">
-    <thead><tr><th style="min-width:220px">To-do item</th><th style="min-width:150px">When</th><th style="min-width:130px"></th><th></th></tr></thead>
-    <tbody id="todoBody"></tbody>
-  </table></div>
-</section>
-
 <!-- ================= WORK RECORDS ================= -->
 <section class="view" id="view-records">
   <div class="viewhead">
@@ -615,7 +476,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
   </div>
   <div class="kpis" id="dashKpis"></div>
   <div class="dcard" id="dashMonthCats"></div>
-  <div id="dashAheadCard"></div>
   <div id="dashWeeks"></div>
 </section>
 
@@ -640,7 +500,7 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
   <div class="dialog" role="dialog" aria-label="Edit categories">
     <button class="closeX" id="closeCats" title="Close" type="button">✕</button>
     <h2>Your categories</h2>
-    <p>Add categories that fit your work, or remove ones you don't use. If a removed category is already on items, they keep the label.</p>
+    <p>Fix a typo with ✎ — the new name is applied everywhere the category is used, including past weeks and months. Rename one to match another to merge them. If you remove (✕) a category that's in use, those items keep the label.</p>
     <div id="catList"></div>
     <div class="cat-add">
       <input id="newCat" placeholder="e.g. Finance" maxlength="24">
@@ -648,19 +508,6 @@ tfoot td{background:#F6F8FA;font-family:var(--mono);font-weight:600;font-size:12
     </div>
   </div>
 </div>
-<div class="sheet-back" id="promoBack">
-  <div class="dialog" role="dialog" aria-label="Choose a category">
-    <h2>Add to Plan for the Week</h2>
-    <p id="promoSummary"></p>
-    <div class="field" style="margin-bottom:14px">
-      <label for="promoCatIn" style="font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)">Category</label>
-      <div class="combo"><input type="text" class="combo-in" id="promoCatIn" autocomplete="off" placeholder="Search or add…"><ul class="combo-list" id="promoCatList"></ul></div>
-    </div>
-    <button class="btn" id="promoConfirm">Add to Plan for the Week</button>
-    <button class="btn secondary" id="promoCancel">Not now</button>
-  </div>
-</div>
-<div class="combo-list daycal" id="floatCal" style="position:fixed"></div>
 <div class="sheet-back" id="importChoiceBack">
   <div class="dialog" role="dialog" aria-label="Import options">
     <h2>Import from Excel</h2>
@@ -682,7 +529,6 @@ const SEED = null;
 /* ============ storage ============ */
 const BASEKEY = "tasksTracker.v3";
 const DEFAULT_CATS = ["Sales","Marketing","Administration","Networking","Product","Learning","Field work","Meeting","Customer support","Other"];
-const REMINDER_LABELS = {15:"15 min before",60:"1 hour before",180:"3 hours before",1440:"1 day before",4320:"3 days before",10080:"1 week before"};
 let gUser = null;
 try{ gUser = JSON.parse(localStorage.getItem("tt.user")||"null"); }catch(e){}
 function activeKey(){ return gUser ? BASEKEY+"."+gUser.email : BASEKEY; }
@@ -711,16 +557,7 @@ function demoData(){
       { id: 3, date: day(1), wi: 2, task: "Updated homepage copy", cat: "Marketing", hours: 3, notes: "" },
       { id: 4, date: day(2), wi: 3, task: "Reconciled monthly expenses", cat: "Administration", hours: 1, notes: "" },
       { id: 5, date: pd(1), wi: 2, task: "New site layout draft", cat: "Marketing", hours: 4, notes: "" },
-      { id: 6, date: pd(3), wi: 2, task: "Published new website", cat: "Marketing", hours: 3.5, notes: "" }],
-    ahead: [
-      { id: 101, item: "Data center bring-up — customer site", cat: "Field work",
-        project: "DC Bring-up", customer: "Example Customer",
-        startDate: iso(new Date(t.getFullYear(), t.getMonth(), t.getDate()+9)), startTime: "",
-        endDate: iso(new Date(t.getFullYear(), t.getMonth(), t.getDate()+11)), endTime: "",
-        location: "Guadalajara, MX", reminder: 1440, calEventId: null, calPending: false }],
-    todos: [
-      { id: 201, text: "Renew business license", whenStart: null, whenEnd: null, promoted: false, linkedWi: null, linkedWeek: null }],
-    projects: ["DC Bring-up"], customers: ["Example Customer"]
+      { id: 6, date: pd(3), wi: 2, task: "Published new website", cat: "Marketing", hours: 3.5, notes: "" }]
   });
 }
 function load(){
@@ -812,7 +649,7 @@ function planForWeek(w){ return db.plan.filter(p=>p.week===w); }
 
 /* ============ navigation ============ */
 let currentView = "home";
-const VIEWNAMES = {home:"Home", plan:"Plan for the Week", ahead:"Work Plan Ahead", todo:"Random To-Do", records:"Work Records", dash:"Dashboard"};
+const VIEWNAMES = {home:"Home", plan:"Plan for the Week", records:"Work Records", dash:"Dashboard"};
 function refreshViews(){ show(currentView); }
 function show(v){
   currentView = v;
@@ -821,15 +658,13 @@ function show(v){
   $("mnavMenu").classList.remove("open"); $("mnavBtn").classList.remove("open");
   document.querySelectorAll("#mnavMenu button").forEach(b=>
     b.classList.toggle("cur", b.dataset.nav===v));
-  ["home","plan","ahead","todo","records","dash"].forEach(x=>{
+  ["home","plan","records","dash"].forEach(x=>{
     $("view-"+x).classList.toggle("active", x===v);
   });
   document.querySelectorAll(".navlinks button").forEach(b=>
     b.classList.toggle("active", b.dataset.nav===v));
   if(v==="home") renderHome();
   if(v==="plan") renderPlan();
-  if(v==="ahead") renderAhead();
-  if(v==="todo") renderTodo();
   if(v==="records") renderRecords();
   if(v==="dash") renderDash();
   window.scrollTo(0,0);
@@ -859,10 +694,6 @@ function renderHome(){
   const mRecs = db.records.filter(r=>{ const d=fromISO(r.date);
     return d.getFullYear()===dashMonth.getFullYear() && d.getMonth()===dashMonth.getMonth(); });
   $("statDash").textContent = `${dashMonth.toLocaleDateString(undefined,{month:"long"})}: ${h(mRecs.reduce((s,r)=>s+r.hours,0))} so far`;
-  const upcoming = db.ahead.filter(a=>a.startDate && a.startDate>=iso(new Date())).length;
-  $("statAhead").textContent = db.ahead.length ? `${upcoming} upcoming · ${db.ahead.length} total` : "Nothing planned ahead yet";
-  const openTodos = db.todos.filter(x=>!x.promoted).length;
-  $("statTodo").textContent = db.todos.length ? `${openTodos} unscheduled · ${db.todos.length} total` : "Nothing jotted down yet";
 }
 
 /* ============ PLAN TO-DO ============ */
@@ -940,9 +771,16 @@ $("weekTheme").addEventListener("change", ()=>{
 /* --- unified add row: item -> category -> add --- */
 let catModalMode = null; // "create" (from "+ Create new category…") or "edit" (from "Edit categories…")
 let pendingNewName = null; // set while the user is mid-creating a new work item via the ➕ prompt
+let catModalTarget = "plan"; // which Category dropdown opened the manager: "plan" or "rec"
+const CAT_EXTRA_OPTS = `<option value="__new">➕ Create new category…</option><option value="__edit">✎ Edit categories…</option>`;
 function renderCatSel(selected){
-  $("niCat").innerHTML = db.cats.map(c=>`<option ${c===selected?"selected":""}>${esc(c)}</option>`).join("") +
-    `<option value="__new">➕ Create new category…</option>`;
+  $("niCat").innerHTML = db.cats.map(c=>`<option ${c===selected?"selected":""}>${esc(c)}</option>`).join("") + CAT_EXTRA_OPTS;
+}
+function openCatManager(mode, target){
+  catModalMode = mode; catModalTarget = target; editingCatIdx = null;
+  renderCatList(); $("catBack").classList.add("open");
+  $("newCat").value="";
+  if(mode==="create") $("newCat").focus();
 }
 function updateAddRow(){
   const sel = $("itemSel");
@@ -982,13 +820,17 @@ $("itemPendingCancel").addEventListener("click", e=>{
   resetToFirstRealItem();
   updateAddRow();
 });
+let niCatPrev = null;
+$("niCat").addEventListener("focus", ()=>{ niCatPrev = $("niCat").value; });
 $("niCat").addEventListener("change", ()=>{
   const v = $("niCat").value;
-  if(v==="__new"){
-    catModalMode = "create";
+  if(v==="__new" || v==="__edit"){
     if(!requireAuth()){ updateAddRow(); return; }
-    renderCatList(); $("catBack").classList.add("open"); $("newCat").value=""; $("newCat").focus();
-  }
+    if(v==="__edit"){   /* don't leave the dropdown sitting on "Edit categories…" */
+      if(niCatPrev && db.cats.includes(niCatPrev)) $("niCat").value = niCatPrev; else updateAddRow();
+    }
+    openCatManager(v==="__new" ? "create" : "edit", "plan");
+  } else niCatPrev = v;
 });
 $("addToWeek").addEventListener("click", ()=>{
   if(!requireAuth()) return;
@@ -1053,16 +895,73 @@ $("planBody").addEventListener("click", e=>{
   save(); renderPlan();
 });
 
+let editingCatIdx = null; // index in db.cats of the category being renamed
+function catUsage(c){
+  return db.items.filter(x=>x.cat===c).length + db.records.filter(r=>r.cat===c).length;
+}
 function renderCatList(){
   $("catList").innerHTML = db.cats.map((c,i)=>{
-    const used = db.items.filter(x=>x.cat===c).length +
-                 db.records.filter(r=>r.cat===c).length;
-    return `<div class="catrow"><span>${esc(c)}<small>${used?"used by "+used:""}</small></span>
-      <button class="rowbtn" data-i="${i}" title="Remove category">✕</button></div>`;
+    const used = catUsage(c);
+    if(i===editingCatIdx) return `<div class="catrow editing"><input id="renCat" value="${esc(c)}" maxlength="24" aria-label="New name for ${esc(c)}">
+        <button class="mini" data-act="saveRen" type="button">Save</button><button class="mini ghost" data-act="cancelRen" type="button">Cancel</button></div>
+      <div id="renMergeNote"></div>`;
+    return `<div class="catrow"><span class="cname">${esc(c)}<small>${used?"used by "+used:""}</small></span>
+      <span class="acts"><button class="rowbtn edit" data-act="ren" data-i="${i}" title="Rename category" type="button">✎</button>
+      <button class="rowbtn" data-act="rm" data-i="${i}" title="Remove category" type="button">✕</button></span></div>`;
   }).join("") || '<div class="empty">No categories yet — add one below.</div>';
+  const inp = $("renCat");
+  if(inp){
+    inp.focus(); inp.select();
+    inp.addEventListener("input", renMergeHint);
+    inp.addEventListener("keydown", e=>{
+      if(e.key==="Enter"){ e.preventDefault(); doRenameCat(); }
+      if(e.key==="Escape"){ e.preventDefault(); editingCatIdx=null; renderCatList(); }
+    });
+  }
 }
-$("closeCats").addEventListener("click", ()=>{ $("catBack").classList.remove("open"); catModalMode=null; refreshViews(); });
-$("catBack").addEventListener("click", e=>{ if(e.target===$("catBack")){ $("catBack").classList.remove("open"); catModalMode=null; refreshViews(); } });
+function renMergeTarget(v){
+  return db.cats.find((c,i)=>i!==editingCatIdx && c.toLowerCase()===v.toLowerCase());
+}
+function renMergeHint(){
+  const v = $("renCat").value.trim(), old = db.cats[editingCatIdx];
+  const tgt = renMergeTarget(v);
+  $("renMergeNote").innerHTML = tgt
+    ? `<div class="merge-note">"${esc(tgt)}" already exists — saving will merge "${esc(old)}" into it.</div>` : "";
+}
+/* Applies a category rename to every place a category name is stored —
+   work items, all past work records, and (hidden, legacy) Work Plan Ahead
+   entries — so history and the Dashboard pick up the new name. */
+function retagCategory(from, to){
+  db.items.forEach(x=>{ if(x.cat===from) x.cat=to; });
+  db.records.forEach(x=>{ if(x.cat===from) x.cat=to; });
+  (db.ahead||[]).forEach(x=>{ if(x.cat===from) x.cat=to; });
+}
+function doRenameCat(){
+  if(!requireAuth()) return;
+  const old = db.cats[editingCatIdx];
+  const v = $("renCat").value.trim();
+  if(!v){ toast("Type a category name"); return; }
+  if(v===old){ editingCatIdx=null; renderCatList(); return; }
+  const used = catUsage(old);
+  const tgt = renMergeTarget(v);
+  if(tgt){
+    if(!confirm('Merge "'+old+'" into "'+tgt+'"?'+(used?" "+used+" item(s)/record(s) will move to \""+tgt+"\".":""))) return;
+    retagCategory(old, tgt);
+    db.cats.splice(editingCatIdx,1);
+    toast("Merged into "+tgt+(used?" · "+used+" updated":""));
+  } else {
+    retagCategory(old, v);
+    db.cats[editingCatIdx] = v;
+    toast("Renamed to "+v+(used?" · "+used+" updated":""));
+  }
+  editingCatIdx = null;
+  save(); renderCatList();
+}
+function closeCatManager(){
+  $("catBack").classList.remove("open"); catModalMode=null; editingCatIdx=null; refreshViews();
+}
+$("closeCats").addEventListener("click", closeCatManager);
+$("catBack").addEventListener("click", e=>{ if(e.target===$("catBack")) closeCatManager(); });
 $("addCat").addEventListener("click", ()=>{
   const c = $("newCat").value.trim();
   if(!c){ toast("Type a category name"); return; }
@@ -1070,8 +969,9 @@ $("addCat").addEventListener("click", ()=>{
   db.cats.push(c); $("newCat").value = "";
   save();
   if(catModalMode==="create"){
-    $("catBack").classList.remove("open"); catModalMode=null;
-    renderCatSel(c);
+    $("catBack").classList.remove("open"); catModalMode=null; editingCatIdx=null;
+    if(catModalTarget==="rec"){ renderRecCatSel(c); recCatPrev = c; }
+    else { renderCatSel(c); niCatPrev = c; }
     toast(c+" added and selected");
   } else {
     renderCatList(); toast(c+" added");
@@ -1079,13 +979,19 @@ $("addCat").addEventListener("click", ()=>{
 });
 $("newCat").addEventListener("keydown", e=>{ if(e.key==="Enter") $("addCat").click(); });
 $("catList").addEventListener("click", e=>{
-  const b = e.target.closest("[data-i]"); if(!b) return;
+  const b = e.target.closest("[data-act]"); if(!b) return;
+  const act = b.dataset.act;
+  if(act==="ren"){ editingCatIdx = +b.dataset.i; renderCatList(); return; }
+  if(act==="cancelRen"){ editingCatIdx = null; renderCatList(); return; }
+  if(act==="saveRen"){ doRenameCat(); return; }
+  if(act!=="rm") return;
+  if(!requireAuth()) return;
   const i = +b.dataset.i, c = db.cats[i];
-  const used = db.items.filter(x=>x.cat===c).length + db.records.filter(r=>r.cat===c).length;
+  const used = catUsage(c);
   if(!confirm(used
     ? '"'+c+'" is used by '+used+' item(s)/record(s). They keep the label, but it won\'t be offered for new items. Remove it?'
     : 'Remove "'+c+'"?')) return;
-  db.cats.splice(i,1); save(); renderCatList();
+  db.cats.splice(i,1); editingCatIdx=null; save(); renderCatList();
 });
 
 $("planPrev").addEventListener("click", ()=>{ weekStart.setDate(weekStart.getDate()-7); renderPlan(); });
@@ -1143,142 +1049,6 @@ document.addEventListener("click", e=>{
   if(!e.target.closest(".pnav")) document.querySelectorAll(".cal.open").forEach(c=>c.classList.remove("open"));
 });
 
-/* ============ fuzzy search (category / project / customer combos) ============ */
-function fuzzyScore(q,t){
-  q=q.toLowerCase(); t=t.toLowerCase();
-  const idx = t.indexOf(q);
-  if(idx>=0) return 1000 - idx;
-  let ti=0, qi=0, score=0, lastMatch=-1;
-  while(ti<t.length && qi<q.length){
-    if(t[ti]===q[qi]){ score += (lastMatch===ti-1?3:1); lastMatch=ti; qi++; }
-    ti++;
-  }
-  return qi===q.length ? score : -1;
-}
-function fuzzyFilter(list, q, limit){
-  const uniq = [...new Set(list.filter(Boolean))];
-  if(!q) return uniq.slice(0, limit||40);
-  const scored = uniq.map(s=>({s,sc:fuzzyScore(q,s)})).filter(x=>x.sc>=0);
-  scored.sort((a,b)=>b.sc-a.sc);
-  return scored.map(x=>x.s).slice(0, limit||40);
-}
-function markHtml(text, q){
-  if(!q) return esc(text);
-  const idx = text.toLowerCase().indexOf(q.toLowerCase());
-  if(idx<0) return esc(text);
-  return esc(text.slice(0,idx))+"<mark>"+esc(text.slice(idx,idx+q.length))+"</mark>"+esc(text.slice(idx+q.length));
-}
-/* Turns a plain text input + an adjoining <ul class="combo-list"> into a
-   fuzzy-searchable dropdown. opts: getOptions()=>string[], onSelect(v),
-   allowCreate (shows "+ Create …" when nothing matches), onCreate(q). */
-function attachCombo(inputId, listId, opts){
-  const input = $(inputId), list = $(listId);
-  function pick(li){
-    if(li.dataset.create){ opts.onCreate && opts.onCreate(input.value.trim()); }
-    else { input.value = li.dataset.v; opts.onSelect && opts.onSelect(li.dataset.v); }
-    list.classList.remove("open");
-  }
-  function renderList(){
-    const q = input.value.trim();
-    const pool = opts.getOptions() || [];
-    const matches = fuzzyFilter(pool, q, 40);
-    let html = matches.map(o=>`<li data-v="${esc(o)}">${markHtml(o,q)}</li>`).join("");
-    if(opts.allowCreate && q && !pool.some(o=>o.toLowerCase()===q.toLowerCase())){
-      html += `<li class="create" data-create="1">➕ Create "${esc(q)}"</li>`;
-    }
-    if(!html) html = q ? `<li class="empty">No matches</li>` : `<li class="empty">${pool.length?"Type to search…":"Nothing yet — just type"}</li>`;
-    list.innerHTML = html;
-  }
-  function openList(){
-    document.querySelectorAll(".combo-list.open").forEach(l=>{ if(l!==list) l.classList.remove("open"); });
-    renderList(); list.classList.add("open");
-  }
-  input.addEventListener("focus", openList);
-  input.addEventListener("input", openList);
-  input.addEventListener("keydown", e=>{
-    if(e.key==="Escape"){ list.classList.remove("open"); return; }
-    if(e.key==="Enter" && list.classList.contains("open")){
-      const first = list.querySelector("li[data-v],li[data-create]");
-      if(first){ e.preventDefault(); pick(first); }
-    }
-  });
-  list.addEventListener("mousedown", e=>{
-    const li = e.target.closest("li");
-    if(!li || (!li.dataset.v && !li.dataset.create)) return;
-    e.preventDefault(); pick(li);
-  });
-  document.addEventListener("click", e=>{
-    if(!e.target.closest("#"+inputId) && !e.target.closest("#"+listId)) list.classList.remove("open");
-  });
-  return { refresh: renderList };
-}
-
-/* ============ day / range calendar picker (Work Plan Ahead + Random To-Do) ============ */
-function calGridHtml(vy, vm, start, end, extraFoot){
-  const gridStart = mondayOf(new Date(vy, vm, 1));
-  let rows = "", cur = new Date(gridStart);
-  for(let wk=0; wk<6; wk++){
-    let tds = "";
-    for(let d=0; d<7; d++){
-      const dISO = iso(cur);
-      const dim = cur.getMonth()!==vm;
-      const isToday = dISO===iso(new Date());
-      let cls = "pick"+(dim?" dim":"")+(isToday?" today":"");
-      if(start){
-        if(!end || end===start){ if(dISO===start) cls+=" sel"; }
-        else if(dISO>=start && dISO<=end){ cls += (dISO===start||dISO===end) ? " sel" : " inrange"; }
-      }
-      tds += `<td class="${cls}" data-d="${dISO}">${cur.getDate()}</td>`;
-      cur.setDate(cur.getDate()+1);
-    }
-    rows += `<tr>${tds}</tr>`;
-    if(cur.getMonth()!==vm && cur.getDate()<=7) break;
-  }
-  return `<div class="cal-head"><button type="button" data-cm="-1">‹</button><b>${MONTHNAMES[vm]} ${vy}</b><button type="button" data-cm="1">›</button></div>
-    <table><tr><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr>${rows}</table>
-    ${extraFoot||""}`;
-}
-/* A fixed date (range:false) or date-range (range:true) picker anchored to a
-   readonly text input. opts: range, getValue()=>({start,end}), onChange(s,e). */
-function makeDayPicker(inputId, listId, opts){
-  const input = $(inputId), pop = $(listId);
-  let vy=0, vm=0, rangeStart=null;
-  function draw(){
-    const {start,end} = opts.getValue();
-    pop.innerHTML = calGridHtml(vy, vm, start, end,
-      `<div class="cal-tip">${opts.range?"Click a day, or click again for a range":"Click a day to select it"}</div>`+
-      (start?`<div class="cal-tip"><a href="#" data-clear="1" style="color:var(--red);text-decoration:none;font-weight:600">Clear date</a></div>`:""));
-  }
-  function open(){
-    document.querySelectorAll(".combo-list.open").forEach(l=>{ if(l!==pop) l.classList.remove("open"); });
-    const {start} = opts.getValue();
-    const base = start ? fromISO(start) : new Date();
-    vy = base.getFullYear(); vm = base.getMonth(); rangeStart = null;
-    draw(); pop.classList.add("open");
-  }
-  input.addEventListener("click", e=>{ e.stopPropagation(); open(); });
-  input.addEventListener("focus", open);
-  pop.addEventListener("mousedown", e=>{
-    e.preventDefault(); e.stopPropagation();
-    const mv = e.target.closest("[data-cm]");
-    if(mv){ vm+=+mv.dataset.cm; if(vm<0){vm=11;vy--;} if(vm>11){vm=0;vy++;} draw(); return; }
-    if(e.target.closest("[data-clear]")){ opts.onChange(null,null); rangeStart=null; pop.classList.remove("open"); return; }
-    const td = e.target.closest("td.pick"); if(!td) return;
-    const d = td.dataset.d;
-    if(opts.range){
-      if(!rangeStart){ rangeStart = d; opts.onChange(d,d); draw(); }
-      else{
-        const s = rangeStart<d?rangeStart:d, en = rangeStart<d?d:rangeStart;
-        opts.onChange(s,en); rangeStart=null; pop.classList.remove("open");
-      }
-    } else { opts.onChange(d,d); pop.classList.remove("open"); }
-  });
-  document.addEventListener("click", e=>{
-    if(!e.target.closest("#"+inputId) && !e.target.closest("#"+listId)) pop.classList.remove("open");
-  });
-}
-function addDaysISO(s,n){ const d=fromISO(s); d.setDate(d.getDate()+n); return iso(d); }
-
 /* ============ WORK RECORDS ============ */
 let editingRecId = null; // id of the Work Records row currently expanded for editing
 function recWiOptionsHtml(selectedWi){
@@ -1334,7 +1104,7 @@ function renderRecords(){
     (others.length?`<optgroup label="All items">${others.map(opt).join("")}</optgroup>`:"");
   if(!sel.options.length) sel.innerHTML = "<option value=''>No items yet — add one in Plan To-Do</option>";
   if([...sel.options].some(o=>o.value===prev)) sel.value = prev;
-  $("rCat").innerHTML = db.cats.map(c=>`<option>${esc(c)}</option>`).join("");
+  renderRecCatSel($("rCat").value);
   syncRecCat();
   syncRecStatus();
 
@@ -1349,11 +1119,28 @@ function renderRecords(){
   $("recFoot").innerHTML = `<tr><td colspan="5">Week total · ${recs.length} entries</td>
     <td>${h(recs.reduce((s,r)=>s+r.hours,0))}</td><td colspan="2"></td></tr>`;
 }
+function renderRecCatSel(selected){
+  $("rCat").innerHTML = db.cats.map(c=>`<option ${c===selected?"selected":""}>${esc(c)}</option>`).join("") + CAT_EXTRA_OPTS;
+  if(!db.cats.includes($("rCat").value)) $("rCat").selectedIndex = 0;
+  recCatPrev = $("rCat").value;
+}
+let recCatPrev = null;
 function syncRecCat(){
   const it = item(parseInt($("rWI").value,10));
   if(it && db.cats.includes(it.cat)) $("rCat").value = it.cat;
+  recCatPrev = $("rCat").value;
   syncRecStatus();
 }
+$("rCat").addEventListener("focus", ()=>{ if(db.cats.includes($("rCat").value)) recCatPrev = $("rCat").value; });
+$("rCat").addEventListener("change", ()=>{
+  const v = $("rCat").value;
+  if(v==="__new" || v==="__edit"){
+    /* never leave the dropdown on an action row */
+    $("rCat").value = (recCatPrev && db.cats.includes(recCatPrev)) ? recCatPrev : (db.cats[0]||"");
+    if(!requireAuth()) return;
+    openCatManager(v==="__new" ? "create" : "edit", "rec");
+  } else recCatPrev = v;
+});
 function recWeekISO(){
   const dstr = $("rDate").value || iso(new Date());
   return iso(mondayOf(fromISO(dstr)));
@@ -1382,8 +1169,10 @@ $("addRec").addEventListener("click", ()=>{
   const hours = parseFloat($("rHours").value);
   if(!(hours>0)){ toast("Enter hours spent"); return; }
   const date = $("rDate").value || iso(new Date());
+  const recCat = $("rCat").value;
+  if(!recCat || recCat==="__new" || recCat==="__edit"){ toast("Pick a category"); return; }
   db.records.push({ id: Date.now(), date, wi, task: $("rTask").value.trim(),
-    cat: $("rCat").value, hours, notes: $("rNotes").value.trim() });
+    cat: recCat, hours, notes: $("rNotes").value.trim() });
   /* update (or create) the plan entry for that week with the chosen status */
   const wkey = iso(mondayOf(fromISO(date)));
   const st = $("rStatus").value, pg = parseInt($("rProg").value,10)||0;
@@ -1442,323 +1231,12 @@ $("recBody").addEventListener("change", e=>{
 $("recPrev").addEventListener("click", ()=>{ editingRecId=null; weekStart.setDate(weekStart.getDate()-7); renderRecords(); });
 $("recNext").addEventListener("click", ()=>{ editingRecId=null; weekStart.setDate(weekStart.getDate()+7); renderRecords(); });
 
-/* ============ WORK PLAN AHEAD ============ */
-let aStart = null, aEnd = null, editingAheadId = null;
-const aCatCombo = attachCombo("aCatIn","aCatList", {
-  getOptions: ()=>db.cats, allowCreate:true,
-  onSelect: v=>{ $("aCatIn").value=v; },
-  onCreate: q=>{ if(q && !db.cats.some(c=>c.toLowerCase()===q.toLowerCase())){ db.cats.push(q); save(); } $("aCatIn").value=q; }
-});
-const aProjCombo = attachCombo("aProjIn","aProjList", {
-  getOptions: ()=>db.projects, onSelect: v=>{ $("aProjIn").value=v; }
-});
-const aCustCombo = attachCombo("aCustIn","aCustList", {
-  getOptions: ()=>db.customers, onSelect: v=>{ $("aCustIn").value=v; }
-});
-makeDayPicker("aStartDate","aStartCal", { range:false,
-  getValue: ()=>({start:aStart,end:aStart}),
-  onChange: s=>{ aStart=s; $("aStartDate").value = s?fmtShort(s):""; }});
-makeDayPicker("aEndDate","aEndCal", { range:false,
-  getValue: ()=>({start:aEnd,end:aEnd}),
-  onChange: s=>{ aEnd=s; $("aEndDate").value = s?fmtShort(s):""; }});
-
-function resetAheadForm(){
-  $("aItem").value=""; $("aCatIn").value=""; $("aProjIn").value=""; $("aCustIn").value="";
-  aStart=null; aEnd=null; $("aStartDate").value=""; $("aEndDate").value="";
-  $("aStartTime").value=""; $("aEndTime").value=""; $("aLoc").value=""; $("aRem").value="1440";
-  $("aheadFormTitle").textContent = "Add a planned work item";
-  $("addAhead").textContent = "Add to plan ahead";
-  $("aheadCancelEdit").hidden = true;
-  editingAheadId = null;
-}
-function aheadDuration(a){
-  if(a.startTime){
-    const s = new Date(a.startDate+"T"+(a.startTime||"00:00"));
-    const e = new Date((a.endDate||a.startDate)+"T"+(a.endTime||a.startTime));
-    const hrs = (e-s)/3600000;
-    return { hours: hrs>0?hrs:0, days:0 };
-  }
-  const days = Math.round((fromISO(a.endDate||a.startDate) - fromISO(a.startDate))/86400000)+1;
-  return { hours:0, days: Math.max(1,days) };
-}
-function renderAhead(){
-  aCatCombo.refresh(); aProjCombo.refresh(); aCustCombo.refresh();
-  const rows = db.ahead.slice().sort((a,b)=>(a.startDate||"9999").localeCompare(b.startDate||"9999"));
-  const body = $("aheadBody");
-  if(!rows.length){
-    body.innerHTML = `<tr><td colspan="8"><div class="empty">Nothing planned ahead yet.<br>Add a trip, site visit, or meeting above — once it has a date, it syncs to your Google Calendar.</div></td></tr>`;
-    return;
-  }
-  body.innerHTML = rows.map(a=>{
-    const pc = [a.project, a.customer].filter(Boolean).join(" · ") || "—";
-    let whenStr = fmtShort(a.startDate);
-    if(a.startTime) whenStr += " "+a.startTime;
-    const endDate = a.endDate||a.startDate;
-    if(endDate!==a.startDate) whenStr += " – "+fmtShort(endDate)+(a.endTime?" "+a.endTime:"");
-    else if(a.endTime && a.endTime!==a.startTime) whenStr += " – "+a.endTime;
-    const remLabel = a.reminder!=null ? (REMINDER_LABELS[a.reminder]||a.reminder+" min before") : "None";
-    const calStatus = a.calEventId ? '<span class="wpa-synced">Synced</span>'
-      : (a.calPending ? '<span class="wpa-syncing">Pending…</span>' : '<span style="color:var(--muted)">—</span>');
-    return `<tr data-id="${a.id}">
-      <td>${esc(a.item)}</td>
-      <td><span class="chip">${esc(a.cat)}</span></td>
-      <td style="font-size:12.5px;color:var(--muted)">${esc(pc)}</td>
-      <td><span class="wpa-when">${esc(whenStr)}</span></td>
-      <td><span class="wpa-loc">${esc(a.location||"—")}</span></td>
-      <td><span class="wpa-rem">${esc(remLabel)}</span></td>
-      <td>${calStatus}</td>
-      <td style="white-space:nowrap">
-        <button class="rowbtn edit" data-act="edit" title="Edit">✎</button>
-        <button class="rowbtn" data-act="del" title="Delete">✕</button>
-      </td>
-    </tr>`;
-  }).join("");
-}
-$("addAhead").addEventListener("click", ()=>{
-  if(!requireAuth()) return;
-  const itemName = $("aItem").value.trim();
-  if(!itemName){ toast("Enter a work item"); return; }
-  let cat = $("aCatIn").value.trim();
-  if(!cat){ toast("Pick or type a category"); return; }
-  if(!db.cats.some(c=>c.toLowerCase()===cat.toLowerCase())) db.cats.push(cat);
-  else cat = db.cats.find(c=>c.toLowerCase()===cat.toLowerCase());
-  if(!aStart){ toast("Pick a start date"); return; }
-  const project = $("aProjIn").value.trim();
-  const customer = $("aCustIn").value.trim();
-  const startTime = $("aStartTime").value || "";
-  const endTime = $("aEndTime").value || "";
-  const endDate = aEnd || aStart;
-  const location = $("aLoc").value.trim();
-  const remRaw = $("aRem").value;
-  const reminder = remRaw===""? null : +remRaw;
-  const wasEditing = !!editingAheadId;
-  if(wasEditing){
-    const a = db.ahead.find(x=>x.id===editingAheadId);
-    Object.assign(a, {item:itemName, cat, project, customer, startDate:aStart, startTime, endDate, endTime, location, reminder, calPending:true});
-  } else {
-    db.ahead.push({ id: Date.now(), item:itemName, cat, project, customer,
-      startDate:aStart, startTime, endDate, endTime, location, reminder, calEventId:null, calPending:true });
-  }
-  if(project && !db.projects.includes(project)) db.projects.push(project);
-  if(customer && !db.customers.includes(customer)) db.customers.push(customer);
-  resetAheadForm();
-  save(); renderAhead(); queueCalSync();
-  toast(wasEditing ? "Updated — syncing to Calendar…" : "Added — syncing to Calendar…");
-});
-$("aheadCancelEdit").addEventListener("click", e=>{ e.preventDefault(); resetAheadForm(); });
-$("aheadBody").addEventListener("click", e=>{
-  const btn = e.target.closest("button"); if(!btn) return;
-  const id = +btn.closest("tr").dataset.id;
-  const a = db.ahead.find(x=>x.id===id); if(!a) return;
-  if(btn.dataset.act==="edit"){
-    if(!requireAuth()) return;
-    editingAheadId = id;
-    $("aItem").value=a.item; $("aCatIn").value=a.cat; $("aProjIn").value=a.project||""; $("aCustIn").value=a.customer||"";
-    aStart=a.startDate; aEnd = (a.endDate && a.endDate!==a.startDate) ? a.endDate : null;
-    $("aStartDate").value=fmtShort(a.startDate); $("aEndDate").value = aEnd?fmtShort(aEnd):"";
-    $("aStartTime").value=a.startTime||""; $("aEndTime").value=a.endTime||"";
-    $("aLoc").value=a.location||""; $("aRem").value = a.reminder==null?"":String(a.reminder);
-    $("aheadFormTitle").textContent = "Edit planned work item";
-    $("addAhead").textContent = "Save changes";
-    $("aheadCancelEdit").hidden = false;
-    $("view-ahead").scrollIntoView({behavior:"smooth", block:"start"});
-  } else if(btn.dataset.act==="del"){
-    if(!requireAuth()) return;
-    if(!confirm("Remove this planned item?"+(a.calEventId?" It'll also be removed from Google Calendar.":""))) return;
-    if(a.calEventId) calendarDelete(a).catch(()=>{});
-    db.ahead = db.ahead.filter(x=>x.id!==id);
-    if(editingAheadId===id) resetAheadForm();
-    save(); renderAhead();
-  }
-});
-
-/* ============ RANDOM TO-DO LIST ============ */
-let tWhenStart = null, tWhenEnd = null, promotingTodo = null;
-makeDayPicker("tWhenIn","tWhenCal", { range:true,
-  getValue: ()=>({start:tWhenStart,end:tWhenEnd}),
-  onChange: (s,e)=>{ tWhenStart=s; tWhenEnd=e;
-    $("tWhenIn").value = s ? (s===e?fmtShort(s):fmtShort(s)+" – "+fmtShort(e)) : ""; }});
-const promoCombo = attachCombo("promoCatIn","promoCatList", {
-  getOptions: ()=>db.cats, onSelect: v=>{ $("promoCatIn").value=v; }
-});
-function todoWhenLabel(t){
-  if(!t.whenStart) return "—";
-  return t.whenStart===t.whenEnd ? fmtShort(t.whenStart) : fmtShort(t.whenStart)+" – "+fmtShort(t.whenEnd);
-}
-function renderTodo(){
-  const rows = db.todos.slice().sort((a,b)=>b.id-a.id);
-  const body = $("todoBody");
-  if(!rows.length){
-    body.innerHTML = `<tr><td colspan="4"><div class="empty">Nothing here yet.<br>Jot something down above — give it a date whenever you're ready.</div></td></tr>`;
-    return;
-  }
-  body.innerHTML = rows.map(t=>{
-    const right = t.promoted
-      ? `<button class="rowbtn" data-act="jump" style="color:var(--teald);font-weight:700">✓ In Plan — WI-${t.linkedWi}</button>`
-      : `<button class="todo-open" data-act="schedule">📅 ${t.whenStart?"Change date":"Schedule"}</button>`;
-    return `<tr data-id="${t.id}">
-      <td><input class="notes-in" data-act="text" value="${esc(t.text)}"></td>
-      <td><span class="todo-when">${todoWhenLabel(t)}</span></td>
-      <td>${right}</td>
-      <td><button class="rowbtn" data-act="del" title="Delete">✕</button></td>
-    </tr>`;
-  }).join("");
-}
-function openPromoteModal(todo){
-  promotingTodo = todo;
-  $("promoSummary").innerHTML = `<b>${esc(todo.text)}</b><br>Scheduled for ${esc(todoWhenLabel(todo))}. Pick a category to add it to that week's Plan for the Week.`;
-  $("promoCatIn").value = "";
-  $("promoBack").classList.add("open");
-  promoCombo.refresh();
-  setTimeout(()=>$("promoCatIn").focus(), 50);
-}
-function closePromoteModal(){
-  $("promoBack").classList.remove("open");
-  promotingTodo = null;
-  save(); renderTodo();
-}
-$("promoCancel").addEventListener("click", closePromoteModal);
-$("promoBack").addEventListener("click", e=>{ if(e.target===$("promoBack")) closePromoteModal(); });
-$("promoConfirm").addEventListener("click", ()=>{
-  if(!promotingTodo) return;
-  let cat = $("promoCatIn").value.trim();
-  if(!cat){ toast("Pick or type a category"); return; }
-  if(!db.cats.some(c=>c.toLowerCase()===cat.toLowerCase())) db.cats.push(cat);
-  else cat = db.cats.find(c=>c.toLowerCase()===cat.toLowerCase());
-  const wi = db.seq++;
-  db.items.push({wi, name:promotingTodo.text, cat});
-  const wk = iso(mondayOf(fromISO(promotingTodo.whenStart)));
-  db.plan.push({week:wk, wi, status:"Not started", progress:0, notes:""});
-  promotingTodo.promoted = true; promotingTodo.linkedWi = wi; promotingTodo.linkedWeek = wk;
-  const wiAdded = wi, weekAdded = wk;
-  $("promoBack").classList.remove("open"); promotingTodo = null;
-  save(); renderTodo();
-  toast("Added to Plan for the Week (WI-"+wiAdded+")"+(weekAdded!==wISO()?" for the week of "+fmtShort(weekAdded):""));
-});
-function onTodoScheduled(todo, s, e){
-  if(s==null){ todo.whenStart=null; todo.whenEnd=null; save(); renderTodo(); toast("Date cleared"); return; }
-  todo.whenStart = s; todo.whenEnd = e||s;
-  if(!todo.promoted){ openPromoteModal(todo); }
-  else { save(); renderTodo(); toast("Date updated (the Plan for the Week item already created isn't moved automatically)"); }
-}
-function openTodoSchedule(todo, anchorEl){
-  const pop = $("floatCal");
-  let vy, vm, rangeStart=null, start=todo.whenStart, end=todo.whenEnd;
-  function draw(){
-    const foot = rangeStart
-      ? `<div class="cal-tip">Click another day for a range, or <a href="#" data-use="1" style="color:var(--teald);text-decoration:none;font-weight:600">use just ${esc(fmtShort(rangeStart))}</a></div>`
-      : `<div class="cal-tip">Click a day, or click again for a range</div>`;
-    pop.innerHTML = calGridHtml(vy, vm, start, end, foot +
-      (start&&!rangeStart?`<div class="cal-tip"><a href="#" data-clear="1" style="color:var(--red);text-decoration:none;font-weight:600">Clear date</a></div>`:""));
-  }
-  const base = start?fromISO(start):new Date();
-  vy = base.getFullYear(); vm = base.getMonth();
-  draw();
-  const r = anchorEl.getBoundingClientRect();
-  pop.style.top = Math.min(r.bottom+6, window.innerHeight-320)+"px";
-  pop.style.left = Math.max(8, Math.min(r.left, window.innerWidth-300))+"px";
-  pop.classList.add("open");
-  function finish(s,e2){
-    pop.classList.remove("open");
-    pop.removeEventListener("mousedown", onPop);
-    document.removeEventListener("click", onDoc);
-    onTodoScheduled(todo, s, e2);
-  }
-  function onPop(e){
-    e.preventDefault(); e.stopPropagation();
-    const mv = e.target.closest("[data-cm]");
-    if(mv){ vm+=+mv.dataset.cm; if(vm<0){vm=11;vy--;} if(vm>11){vm=0;vy++;} draw(); return; }
-    if(e.target.closest("[data-clear]")){ finish(null,null); return; }
-    if(e.target.closest("[data-use]")){ finish(rangeStart, rangeStart); return; }
-    const td = e.target.closest("td.pick"); if(!td) return;
-    const d = td.dataset.d;
-    if(!rangeStart){ rangeStart=d; start=d; end=d; draw(); return; }
-    const s = rangeStart<d?rangeStart:d, en = rangeStart<d?d:rangeStart;
-    finish(s,en);
-  }
-  function onDoc(e){
-    if(!e.target.closest("#floatCal") && e.target!==anchorEl){
-      pop.classList.remove("open");
-      pop.removeEventListener("mousedown", onPop);
-      document.removeEventListener("click", onDoc);
-    }
-  }
-  pop.addEventListener("mousedown", onPop);
-  setTimeout(()=>document.addEventListener("click", onDoc), 0);
-}
-$("addTodo").addEventListener("click", ()=>{
-  if(!requireAuth()) return;
-  const text = $("tItem").value.trim();
-  if(!text){ toast("Type a to-do item"); return; }
-  const todo = { id: Date.now(), text, whenStart: tWhenStart||null, whenEnd: tWhenEnd||tWhenStart||null,
-    promoted:false, linkedWi:null, linkedWeek:null };
-  db.todos.push(todo);
-  $("tItem").value=""; tWhenStart=null; tWhenEnd=null; $("tWhenIn").value="";
-  save(); renderTodo();
-  if(todo.whenStart) openPromoteModal(todo);
-  else toast("Added to your Random To-Do list");
-});
-$("todoBody").addEventListener("click", e=>{
-  const btn = e.target.closest("button"); if(!btn) return;
-  const id = +btn.closest("tr").dataset.id;
-  const todo = db.todos.find(t=>t.id===id); if(!todo) return;
-  if(btn.dataset.act==="schedule"){ if(!requireAuth()) return; openTodoSchedule(todo, btn); }
-  else if(btn.dataset.act==="jump"){ weekStart=fromISO(todo.linkedWeek); show("plan"); }
-  else if(btn.dataset.act==="del"){
-    if(!requireAuth()) return;
-    if(!confirm(todo.promoted ? "Remove this from your Random To-Do list? (The Plan for the Week item it already created is kept.)" : "Delete this to-do?")) return;
-    db.todos = db.todos.filter(t=>t.id!==id);
-    save(); renderTodo();
-  }
-});
-$("todoBody").addEventListener("change", e=>{
-  if(e.target.dataset.act!=="text") return;
-  if(!requireAuth()){ renderTodo(); return; }
-  const id = +e.target.closest("tr").dataset.id;
-  const todo = db.todos.find(t=>t.id===id); if(!todo) return;
-  const v = e.target.value.trim();
-  if(!v){ toast("To-do item can't be empty"); renderTodo(); return; }
-  todo.text = v; save();
-});
-
 /* ============ DASHBOARD ============ */
 function catBars(byCat, max){
   return Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`
     <div class="catbar"><span>${esc(c)}</span>
       <span class="bar"><i style="width:${Math.max(2,Math.round(v/max*100))}%"></i></span>
       <span class="n">${h(v)}</span></div>`).join("");
-}
-function aheadForMonth(y,m){
-  return db.ahead.filter(a=>{
-    if(!a.startDate) return false;
-    const d = fromISO(a.startDate);
-    return d.getFullYear()===y && d.getMonth()===m;
-  });
-}
-function renderAheadDashCard(items){
-  if(!items.length) return "";
-  const fmtDur = x => x.hours>0 ? h(x.hours) : (x.days ? x.days+"d" : "—");
-  const byCat = {};
-  items.forEach(a=>{
-    const d = aheadDuration(a);
-    const c = byCat[a.cat] = byCat[a.cat] || { hours:0, days:0, count:0, byPC:{} };
-    c.hours += d.hours; c.days += d.days; c.count++;
-    if(a.project || a.customer){
-      const key = [a.project||"—", a.customer||"—"].join(" · ");
-      c.byPC[key] = c.byPC[key] || { hours:0, days:0 };
-      c.byPC[key].hours += d.hours; c.byPC[key].days += d.days;
-    }
-  });
-  const rows = Object.entries(byCat).sort((a,b)=>b[1].count-a[1].count).map(([cat,v])=>{
-    const pcRows = Object.entries(v.byPC).map(([k,vv])=>
-      `<div class="catbar" style="grid-template-columns:1fr 60px;margin-bottom:4px"><span style="color:var(--muted);font-size:12px;padding-left:14px">${esc(k)}</span><span class="n">${fmtDur(vv)}</span></div>`).join("");
-    return `<div style="margin-bottom:11px"><div class="catbar" style="grid-template-columns:140px 1fr 60px">
-        <span><span class="chip">${esc(cat)}</span></span><span style="color:var(--muted);font-size:12px">${v.count} item${v.count===1?"":"s"}</span><span class="n">${fmtDur(v)}</span>
-      </div>${pcRows}</div>`;
-  }).join("");
-  return `<div class="dcard"><h3>Work Plan Ahead — by category</h3>
-    <div class="sub">Planned time this month, from each item's start/end. Broken down by project and customer where set.</div>
-    ${rows}</div>`;
 }
 function renderDash(){
   const y = dashMonth.getFullYear(), m = dashMonth.getMonth();
@@ -1802,8 +1280,6 @@ function renderDash(){
        ${allPlan.length?`<div class="statbar" style="margin-bottom:12px">${statChips(allPlan)}</div>`:""}
        ${catBars(byCat,max)}`
     : `<div class="empty">No hours logged in ${esc($("dashLabel").textContent)} yet.<br>Weeks of the month are shown below — log work and they fill in.</div>`;
-
-  $("dashAheadCard").innerHTML = renderAheadDashCard(aheadForMonth(y,m));
 
   $("dashWeeks").innerHTML = '<div class="wkgrid">' + wk.map((x,i)=>{
     const theme = (db.weeks[x.w]||{}).theme;
@@ -1899,24 +1375,6 @@ $("exportXlsx").addEventListener("click", async ()=>{
     return row;
   });
 
-  /* Sheet 4: Work Plan Ahead */
-  const aheadRows = db.ahead.slice()
-    .sort((a,b)=>(a.startDate||"").localeCompare(b.startDate||""))
-    .map(a=>{
-      const d = aheadDuration(a);
-      return { "Work Item": a.item, "Category": a.cat, "Project": a.project||"", "Customer": a.customer||"",
-        "Start": a.startDate+(a.startTime?" "+a.startTime:""),
-        "End": (a.endDate||a.startDate)+(a.endTime?" "+a.endTime:""),
-        "Location": a.location||"", "Reminder": a.reminder!=null ? (REMINDER_LABELS[a.reminder]||a.reminder+" min before") : "",
-        "Days": d.days||"", "Hours": d.hours||"", "Synced to Calendar": a.calEventId?"Yes":"No" };
-    });
-
-  /* Sheet 5: Random To-Do */
-  const todoRows = db.todos.slice().sort((a,b)=>b.id-a.id).map(t=>({
-    "To-do Item": t.text,
-    "When": t.whenStart ? (t.whenStart===t.whenEnd?t.whenStart:t.whenStart+" to "+t.whenEnd) : "",
-    "Status": t.promoted ? "On Plan for the Week (WI-"+t.linkedWi+")" : "Not scheduled" }));
-
   const wb = XLSX.utils.book_new();
   const add = (rows, name, widths)=>{
     const ws = XLSX.utils.json_to_sheet(rows.length?rows:[{"":"(empty)"}]);
@@ -1926,8 +1384,6 @@ $("exportXlsx").addEventListener("click", async ()=>{
   add(planRows, "Plan for the Week", [12,20,5,34,14,10,12,22,7,28]);
   add(recRows, "Work Records", [11,5,30,50,14,7,32]);
   add(sumRows, "Weekly Summary", [12,20,11,8,12,12].concat(db.cats.map(()=>14)));
-  add(aheadRows, "Work Plan Ahead", [32,14,18,18,16,16,20,16,6,6,16]);
-  add(todoRows, "Random To-Do", [34,26,30]);
   XLSX.writeFile(wb, "tasks-tracker-"+iso(new Date())+".xlsx");
   toast("Excel file downloaded");
 });
@@ -2155,72 +1611,9 @@ function logSignup(){
       body: body.toString()}).catch(()=>{});
   }catch(e){}
 }
-const CAL_SCOPE = "https://www.googleapis.com/auth/calendar.events";
-const SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file " + CAL_SCOPE;
+const SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file";
 let tokenClient=null, accessToken=null, tokenExp=0, driveFileId=null,
-    saveTimer=null, pendingPush=false, calSyncTimer=null;
-
-function hasCalScope(){
-  try{
-    return !!(window.__lastTokenResp && google.accounts.oauth2.hasGrantedAllScopes &&
-      google.accounts.oauth2.hasGrantedAllScopes(window.__lastTokenResp, CAL_SCOPE));
-  }catch(e){ return false; }
-}
-function toRFC3339(dateStr,timeStr){ return dateStr+"T"+(timeStr||"00:00")+":00"; }
-async function calendarUpsert(a){
-  if(!a.startDate || !gUser) return;
-  if(!accessToken || Date.now()>=tokenExp || !hasCalScope()){ a.calPending = true; return; }
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const body = { summary: a.item || "Work item" };
-  const descParts = [];
-  if(a.project) descParts.push("Project: "+a.project);
-  if(a.customer) descParts.push("Customer: "+a.customer);
-  if(descParts.length) body.description = descParts.join("\n");
-  if(a.location) body.location = a.location;
-  const endDate = a.endDate || a.startDate;
-  if(a.startTime){
-    body.start = { dateTime: toRFC3339(a.startDate, a.startTime), timeZone: tz };
-    body.end   = { dateTime: toRFC3339(endDate, a.endTime || a.startTime), timeZone: tz };
-  } else {
-    body.start = { date: a.startDate };
-    body.end   = { date: addDaysISO(endDate, 1) };
-  }
-  body.reminders = (a.reminder!=null)
-    ? { useDefault:false, overrides:[{method:"popup", minutes:+a.reminder}] }
-    : { useDefault:false, overrides:[] };
-  try{
-    if(a.calEventId){
-      await gfetch("https://www.googleapis.com/calendar/v3/calendars/primary/events/"+a.calEventId,
-        {method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
-    } else {
-      const created = await gfetch("https://www.googleapis.com/calendar/v3/calendars/primary/events",
-        {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
-      a.calEventId = created.id;
-    }
-    a.calPending = false;
-  }catch(e){
-    a.calPending = true;
-    console.error("Calendar sync error:", e);
-  }
-}
-async function calendarDelete(a){
-  if(!a.calEventId || !gUser || !accessToken) return;
-  try{ await gfetch("https://www.googleapis.com/calendar/v3/calendars/primary/events/"+a.calEventId,
-    {method:"DELETE"}); }catch(e){ /* best-effort */ }
-}
-function queueCalSync(){
-  clearTimeout(calSyncTimer);
-  calSyncTimer = setTimeout(async ()=>{
-    if(!gUser) return;
-    if(!accessToken || Date.now()>=tokenExp){
-      if(tokenClient) tokenClient.requestAccessToken({prompt:""});
-      return;
-    }
-    const pending = db.ahead.filter(a=>a.calPending && a.startDate);
-    for(const a of pending) await calendarUpsert(a);
-    if(pending.length){ save(); if(currentView==="ahead") renderAhead(); }
-  }, 1200);
-}
+    saveTimer=null, pendingPush=false;
 
 function configured(){ return CLIENT_ID.indexOf("PASTE_")!==0; }
 function setSync(state,msg){ const el=$("syncState");
@@ -2350,7 +1743,6 @@ async function onToken(resp){
     if(pendingPush){ pendingPush=false; await drivePush(); }
     else await driveSync();
     refreshViews();
-    queueCalSync();
   }catch(e){ syncFail(e); }
 }
 

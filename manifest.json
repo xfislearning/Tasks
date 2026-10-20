@@ -33,17 +33,6 @@
       ]
     },
     {
-      "name": "Work Plan Ahead",
-      "short_name": "Ahead",
-      "url": "./#ahead",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
       "name": "Work Records",
       "short_name": "Log",
       "url": "./#records",
